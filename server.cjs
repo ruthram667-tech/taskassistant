@@ -87,7 +87,7 @@ app.post("/api/email/send-confirmation", async (req, res) => {
     if (!task) {
       return res.status(400).json({ error: "Task data is required" });
     }
-    const emailTo = recipientEmail || "ruthram667@gmail.com";
+    const emailTo = recipientEmail || "john132@mail.com";
     const subject = `Task Assist Confirmation: '${task.title}' Scheduled`;
     const hostHeader = req.get("host") || "localhost:3000";
     const protocol = req.secure ? "https" : "http";
