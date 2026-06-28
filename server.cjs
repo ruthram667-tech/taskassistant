@@ -27,10 +27,336 @@ var import_path = __toESM(require("path"), 1);
 var import_vite = require("vite");
 var import_genai = require("@google/genai");
 var import_dotenv = __toESM(require("dotenv"), 1);
+var import_nodemailer = __toESM(require("nodemailer"), 1);
 import_dotenv.default.config();
 var app = (0, import_express.default)();
 var PORT = 3e3;
 app.use(import_express.default.json());
+var sentEmailLogs = [];
+var etherealTransporter = null;
+var etherealUser = null;
+async function getEtherealTransporter() {
+  if (etherealTransporter) {
+    return { transporter: etherealTransporter, user: etherealUser };
+  }
+  try {
+    console.log("[Info] Creating Ethereal SMTP test account...");
+    const testAccount = await import_nodemailer.default.createTestAccount();
+    etherealUser = testAccount.user;
+    etherealTransporter = import_nodemailer.default.createTransport({
+      host: "smtp.ethereal.email",
+      port: 587,
+      secure: false,
+      auth: {
+        user: testAccount.user,
+        pass: testAccount.pass
+      }
+    });
+    console.log(`[Info] Ethereal SMTP test account created successfully: ${testAccount.user}`);
+    return { transporter: etherealTransporter, user: etherealUser };
+  } catch (err) {
+    console.error("[Error] Failed to create Ethereal SMTP test account:", err);
+    return null;
+  }
+}
+function getEmailTransporter() {
+  const host = process.env.SMTP_HOST;
+  const port = process.env.SMTP_PORT;
+  const user = process.env.SMTP_USER;
+  const pass = process.env.SMTP_PASS;
+  if (host && port && user && pass) {
+    console.log("[Info] SMTP config detected. Initializing real SMTP transporter.");
+    return import_nodemailer.default.createTransport({
+      host,
+      port: parseInt(port),
+      secure: port === "465",
+      auth: {
+        user,
+        pass
+      }
+    });
+  }
+  return null;
+}
+app.get("/api/email/logs", (req, res) => {
+  res.json(sentEmailLogs);
+});
+app.post("/api/email/send-confirmation", async (req, res) => {
+  try {
+    const { task, recipientEmail } = req.body;
+    if (!task) {
+      return res.status(400).json({ error: "Task data is required" });
+    }
+    const emailTo = recipientEmail || "ruthram667@gmail.com";
+    const subject = `Task Assist Confirmation: '${task.title}' Scheduled`;
+    const hostHeader = req.get("host") || "localhost:3000";
+    const protocol = req.secure ? "https" : "http";
+    const appUrl = process.env.APP_URL || `${protocol}://${hostHeader}`;
+    const htmlContent = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Task Setup Confirmation</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background-color: #f4f4f5;
+      color: #18181b;
+      margin: 0;
+      padding: 0;
+    }
+    .wrapper {
+      padding: 24px;
+    }
+    .container {
+      max-width: 650px;
+      margin: 0 auto;
+      background: #ffffff;
+      border: 1px solid #e4e4e7;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+    }
+    .header {
+      background-color: #10b981;
+      padding: 32px 24px;
+      text-align: center;
+      color: #ffffff;
+    }
+    .header h1 {
+      margin: 0;
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: -0.05em;
+    }
+    .header p {
+      margin: 8px 0 0 0;
+      font-size: 13px;
+      opacity: 0.9;
+    }
+    .content {
+      padding: 32px 24px;
+    }
+    .task-card {
+      border: 1px solid #e4e4e7;
+      border-radius: 12px;
+      padding: 20px;
+      background-color: #fafafa;
+      margin-bottom: 24px;
+    }
+    .task-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #09090b;
+      margin-top: 0;
+      margin-bottom: 8px;
+    }
+    .task-desc {
+      font-size: 14px;
+      color: #71717a;
+      line-height: 1.5;
+      margin-bottom: 16px;
+    }
+    .details-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 16px;
+    }
+    .details-table td {
+      padding: 10px 0;
+      border-bottom: 1px solid #f4f4f5;
+      font-size: 13px;
+    }
+    .details-table td.label {
+      font-weight: 600;
+      color: #71717a;
+      width: 40%;
+      text-transform: uppercase;
+      font-size: 10px;
+      letter-spacing: 0.05em;
+    }
+    .details-table td.value {
+      color: #18181b;
+      text-align: right;
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 8px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      border-radius: 4px;
+    }
+    .badge-high {
+      background-color: #fee2e2;
+      color: #991b1b;
+    }
+    .badge-medium {
+      background-color: #fef3c7;
+      color: #92400e;
+    }
+    .badge-low {
+      background-color: #f4f4f5;
+      color: #3f3f46;
+    }
+    .badge-active {
+      background-color: #dbeafe;
+      color: #1e40af;
+    }
+    .badge-inactive {
+      background-color: #f4f4f5;
+      color: #71717a;
+    }
+    .footer {
+      background-color: #f4f4f5;
+      padding: 24px;
+      text-align: center;
+      font-size: 11px;
+      color: #71717a;
+      border-top: 1px solid #e4e4e7;
+    }
+    .button-container {
+      text-align: center;
+      margin-top: 24px;
+    }
+    .button {
+      display: inline-block;
+      background-color: #18181b;
+      color: #ffffff;
+      text-decoration: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="container">
+      <div class="header">
+        <h1>TASK ASSIST</h1>
+        <p>Your Autonomous Workspace Planner & Orchestrator</p>
+      </div>
+      <div class="content">
+        <p style="font-size: 14px; line-height: 1.5; color: #3f3f46; margin-top: 0;">
+          Hello Operator,
+        </p>
+        <p style="font-size: 14px; line-height: 1.5; color: #3f3f46; margin-bottom: 24px;">
+          This confirmation email certifies that your new workspace task has been successfully scheduled. The active notification and orchestration parameters are locked as configured below.
+        </p>
+
+        <div class="task-card">
+          <h2 class="task-title">${task.title}</h2>
+          ${task.description ? `<p class="task-desc">${task.description}</p>` : ""}
+          
+          <table class="details-table">
+            <tr>
+              <td class="label">Priority</td>
+              <td class="value">
+                <span class="badge badge-${task.priority || "medium"}">${task.priority || "medium"}</span>
+              </td>
+            </tr>
+            <tr>
+              <td class="label">Due Date</td>
+              <td class="value">${task.dueDate}</td>
+            </tr>
+            <tr>
+              <td class="label">Due Time</td>
+              <td class="value">${task.dueTime || "Not Configured"}</td>
+            </tr>
+            <tr>
+              <td class="label">Est. Duration</td>
+              <td class="value">${task.estimatedDuration || 30} minutes</td>
+            </tr>
+            <tr>
+              <td class="label">Phone Alerts (Escalation)</td>
+              <td class="value">
+                <span class="badge badge-${task.escalationEnabled ? "active" : "inactive"}">
+                  ${task.escalationEnabled ? "Active" : "Disabled"}
+                </span>
+              </td>
+            </tr>
+            ${task.escalationEnabled && task.escalationPhone ? `
+            <tr>
+              <td class="label">Escalation Number</td>
+              <td class="value" style="font-family: monospace;">${task.escalationPhone}</td>
+            </tr>
+            ` : ""}
+          </table>
+        </div>
+
+        <div class="button-container">
+          <a href="${appUrl}" class="button" style="color: #ffffff; text-decoration: none;">Access Control Panel</a>
+        </div>
+      </div>
+      <div class="footer">
+        <p>This is an automated notification from Task Assist Telemetry Node.</p>
+        <p>&copy; 2026 Task Assist Autonomous Planner. All rights reserved.</p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+`;
+    let transporter = getEmailTransporter();
+    let sentInfo = null;
+    let previewUrl = void 0;
+    let isMock = true;
+    if (transporter) {
+      const fromEmail = process.env.SMTP_FROM_EMAIL || `"Task Assist" <${process.env.SMTP_USER}>`;
+      console.log(`[Info] Sending real email via SMTP from: ${fromEmail} to: ${emailTo}`);
+      sentInfo = await transporter.sendMail({
+        from: fromEmail,
+        to: emailTo,
+        subject,
+        html: htmlContent
+      });
+      isMock = false;
+      console.log("[Info] Real confirmation email sent successfully!", sentInfo.messageId);
+    } else {
+      const ethereal = await getEtherealTransporter();
+      if (ethereal) {
+        const fromEmail = `"Task Assist [Ethereal]" <${ethereal.user}>`;
+        console.log(`[Info] Sending test email via Ethereal SMTP from: ${fromEmail} to: ${emailTo}`);
+        sentInfo = await ethereal.transporter.sendMail({
+          from: fromEmail,
+          to: emailTo,
+          subject,
+          html: htmlContent
+        });
+        previewUrl = import_nodemailer.default.getTestMessageUrl(sentInfo) || void 0;
+        isMock = true;
+        console.log(`[Info] Ethereal test email sent! Preview URL: ${previewUrl}`);
+      } else {
+        console.log(`[Info] Simulated email to: ${emailTo}`);
+        console.log(`Subject: ${subject}`);
+        console.log(`Content: ${task.title} - Due: ${task.dueDate} ${task.dueTime}`);
+      }
+    }
+    const logEntry = {
+      id: `email_${Math.random().toString(36).substring(2, 11)}`,
+      recipient: emailTo,
+      taskTitle: task.title,
+      timestamp: (/* @__PURE__ */ new Date()).toISOString(),
+      status: "sent",
+      previewUrl,
+      isMock,
+      subject,
+      taskDetails: task
+    };
+    sentEmailLogs.unshift(logEntry);
+    res.json({
+      success: true,
+      message: isMock ? "Simulated task confirmation email created" : "Real task confirmation email sent",
+      log: logEntry
+    });
+  } catch (error) {
+    console.error("[Error] Failed to send task confirmation email:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
 var aiClient = null;
 function getGeminiClient() {
   if (!aiClient) {
@@ -126,7 +452,7 @@ app.post("/api/gemini/voice-agent", async (req, res) => {
     const highPriority = taskList.filter((t) => t.priority === "high" || t.priority === "urgent");
     const pending = taskList.filter((t) => t.status === "pending" || t.status === "overdue");
     const fallbackVoiceResponse = {
-      voiceScript: `Hello ${userName || "there"}! I am ready to assist you. Currently, you have ${pending.length} pending items on your schedule. The most important one is ${highPriority[0]?.title || pending[0]?.title || "staying focused on your goals"}. Let's make sure we finish that one first today! Shall we get started?`,
+      voiceScript: `Good morning buddy! How was your day? Oh wait, it's just getting started! Let's get through this together and make it an awesome day! Currently, we've got ${pending.length} pending items to look at on our console. The big one we should tackle first is: "${highPriority[0]?.title || pending[0]?.title || "staying on top of your goals"}". Let's crush this together, mate! How are you feeling today?`,
       whatsappBriefing: `Morning! You have ${pending.length} tasks today. The most important one is ${highPriority[0]?.title || pending[0]?.title || "staying productive"}. You're set for a great day!`
     };
     if (checkRateLimit()) {
@@ -136,20 +462,20 @@ app.post("/api/gemini/voice-agent", async (req, res) => {
       return res.json(fallbackVoiceResponse);
     }
     const personaPrompt = `
-You are the voice-activated assistant for 'Task Assist,' a high-efficiency life management system. Your primary goal is to be a supportive, concise, and proactive partner.
+You are the voice-activated assistant for 'Task Assist,' a high-efficiency life management system. Your absolute goal is to be a supportive, companionable, and extremely friendly best buddy (never formal, and never sounding like a machine).
 
-Current User Name: ${userName || "User"}
+Current User Name: ${userName || "buddy"}
 Current Tasks (JSON Format):
 ${JSON.stringify(taskList, null, 2)}
 
-${userQuery ? `The user just asked you the following question or query via voice: "${userQuery}".` : `The user triggered a general voice briefing update.`}
+${userQuery ? `The user just said or asked the following via voice: "${userQuery}".` : `The user triggered a general voice briefing update.`}
 
 Please generate two text versions:
-1. "voiceScript": A warm, spoken response tailored for the browser's Text-to-Speech (TTS) engine.
-- Greeting & Tone: Friendly, professional, clear, and conversational. Avoid sounding robotic. Use simple and direct English. Use simple punctuation for natural pausing (commas and periods). No markdown, bolding, asterisks, or other structural symbols.
-- If the user asked a specific question (e.g. "${userQuery || ""}"), answer it directly, accurately, and naturally in character using their current task list and context.
-- Otherwise, perform the standard greeting and briefing: start with a warm, time-appropriate greeting (e.g., "Good morning! Today is [Date], and you have [X] items on your list."), list the most urgent task first, summarize the rest, note any overdue tasks, briefly check for timelines or overlaps, and close with a motivational prompt or action call.
-- Proactivity: Always anticipate the next step. If a task is overdue, gently remind the user. If they have no tasks, suggest a positive outlook for the day.
+1. "voiceScript": An ultra-warm, casual, and conversational spoken response tailored for the browser's Text-to-Speech (TTS) engine.
+- Greeting & Tone: Extremely friendly, empathetic, personal, and conversational. Speak like a close friend, mate, or buddy, rather than a robotic machine. Use warm, casual phrases like "buddy", "pal", "mate", "friend", and ask caring questions like "how was your day?" or "how are you holding up?".
+- Handling Greetings: If the user says a greeting (like "good morning", "hello", "hi", "hey"), ALWAYS prioritize greeting them back with high-spirited companionable phrases, e.g., "Good morning buddy! How was your day?" or "Good morning buddy, how is your day going? Let's check out what we've got on deck today!".
+- Response details: If the user asked a specific question (e.g., "${userQuery || ""}"), answer it directly, helpfully, and with high-spirited casual humor/empathy.
+- Formatting: Speak in simple English with natural punctuation (commas, periods, exclamation marks) for realistic pauses. Strictly avoid markdown, bullet points, asterisks, bolding, and structural characters. Keep it under 100 words so it sounds crisp and lively!
 
 2. "whatsappBriefing": A short morning briefing draft.
 - Content must match: "Morning! You have [X] tasks today. The most important one is [Task Name]. You're set for a great day!" (adjusting with actual values dynamically based on their current task list).
@@ -265,6 +591,136 @@ Provide ONLY the raw JSON string. Do not include markdown code block formatting 
       })),
       productivityTip: "Tackle your highest priority tasks first to build momentum."
     });
+  }
+});
+function getFallbackDrafts(prompt, channel, recipientType, tone, additionalDetails) {
+  const isLeave = prompt.toLowerCase().includes("leave") || prompt.toLowerCase().includes("sick") || prompt.toLowerCase().includes("absent") || prompt.toLowerCase().includes("today") || prompt.toLowerCase().includes("time off");
+  const isDelay = prompt.toLowerCase().includes("delay") || prompt.toLowerCase().includes("late") || prompt.toLowerCase().includes("traffic") || prompt.toLowerCase().includes("running");
+  const isMeeting = prompt.toLowerCase().includes("meeting") || prompt.toLowerCase().includes("reschedule") || prompt.toLowerCase().includes("discuss");
+  let primary = "";
+  let short = "";
+  let formal = "";
+  if (isLeave) {
+    primary = `Dear ${recipientType || "HOD"}, I am writing to request leave for today due to unforeseen circumstances. ${additionalDetails ? `${additionalDetails}. ` : ""}I will ensure that I catch up on all pending tasks as soon as I return. Thank you for your understanding.`;
+    short = `Hi ${recipientType || "HOD"}, I need to take leave today due to personal reasons. ${additionalDetails ? `${additionalDetails}. ` : ""}Will stay updated on critical items. Thanks!`;
+    formal = `Subject: Leave Application - [Your Name]
+
+Dear ${recipientType || "HOD"},
+
+Please accept this message as formal notification that I will be unable to attend work today, [Date], due to sudden personal reasons. ${additionalDetails ? `${additionalDetails}.
+
+` : "\n"}I will monitor my email periodically for urgent queries and make sure to catch up on all outstanding tasks upon my return.
+
+Thank you for your understanding.
+
+Sincerely,
+[Your Name]`;
+  } else if (isDelay) {
+    primary = `Hello ${recipientType || "Team"}, I wanted to let you know that I am running late today due to traffic/unexpected delays. ${additionalDetails ? `${additionalDetails}. ` : ""}I expect to arrive by [Estimated Time]. Apologies for the inconvenience.`;
+    short = `Hi ${recipientType || "Team"}, running a bit late today! ${additionalDetails ? `${additionalDetails}. ` : ""}Should be online/in by [Time]. Sorry!`;
+    formal = `Subject: Delay Notification - [Your Name]
+
+Dear ${recipientType || "HOD/Team"},
+
+I am writing to inform you that I will be slightly delayed in arriving at the office today due to unexpected transit delays. ${additionalDetails ? `${additionalDetails}.
+
+` : "\n"}I expect to reach my desk by [Time] and will begin working immediately. I apologize for any disruption this may cause.
+
+Best regards,
+[Your Name]`;
+  } else if (isMeeting) {
+    primary = `Hi ${recipientType || "Colleague"}, I would like to request to reschedule our meeting scheduled for today. ${additionalDetails ? `${additionalDetails}. ` : ""}Could we connect at another time? Let me know your availability.`;
+    short = `Hi ${recipientType || "Colleague"}, can we reschedule our chat today? ${additionalDetails ? `${additionalDetails}. ` : ""}Let me know what time works for you later.`;
+    formal = `Subject: Rescheduling Request: Discussion - [Your Name]
+
+Dear ${recipientType || "Recipient"},
+
+I hope this message finds you well. Regarding our scheduled discussion today, I have run into a scheduling conflict and would like to request that we reschedule to a more convenient time.
+
+${additionalDetails ? `${additionalDetails}.
+
+` : ""}Could you please let me know your availability for tomorrow or later this week?
+
+Thank you for your flexibility.
+
+Sincerely,
+[Your Name]`;
+  } else {
+    primary = `Hello ${recipientType || "Recipient"}, I am reaching out to discuss: "${prompt}". ${additionalDetails ? `${additionalDetails}. ` : ""}Please let me know if this works for you.`;
+    short = `Hi ${recipientType || "Recipient"}, just wanted to ping you regarding: "${prompt}". ${additionalDetails ? `${additionalDetails}. ` : ""}Let's connect soon!`;
+    formal = `Subject: Inquiry regarding: ${prompt}
+
+Dear ${recipientType || "Recipient"},
+
+I am writing to bring your attention to the following matter: "${prompt}".
+
+${additionalDetails ? `${additionalDetails}.
+
+` : ""}Please let me know a suitable time when we can address this or if you have any questions.
+
+Thank you for your time and consideration.
+
+Best regards,
+[Your Name]`;
+  }
+  return { primary, short, formal, isFallback: true };
+}
+app.post("/api/gemini/draft-message", async (req, res) => {
+  try {
+    const { prompt, channel, recipientType, tone, additionalDetails } = req.body;
+    const fallbackDrafts = getFallbackDrafts(prompt || "", channel || "", recipientType || "", tone || "", additionalDetails || "");
+    if (checkRateLimit()) {
+      return res.json(fallbackDrafts);
+    }
+    const ai = getGeminiClient();
+    if (!ai) {
+      return res.json(fallbackDrafts);
+    }
+    const draftPrompt = `
+You are an expert copywriter and message drafting agent.
+The user wants to draft a message based on the following request:
+"${prompt || "Take leave for today due to personal reasons"}"
+
+Context and constraints:
+- Target Channel: "${channel || "general"}" (e.g., Email, Slack/Teams, WhatsApp, SMS, General)
+- Recipient: "${recipientType || "Recipient"}" (e.g., Manager, HOD, Client, Colleague, Friend)
+- Tone: "${tone || "polite"}" (e.g., Professional, Polite, Casual, Urgent, Apologetic)
+- Additional info/requirements: "${additionalDetails || "none"}"
+
+Generate three distinct variations for this communication:
+1. "primary": A standard, highly suitable, tailored message incorporating all constraints and details perfectly. Length should be medium (around 2-3 sentences/paragraphs depending on channel).
+2. "short": A shorter, highly concise, and direct draft optimized for instant messaging (Slack, WhatsApp, SMS, etc.) without fluff, but retaining the requested tone.
+3. "formal": A fully structured formal email layout, complete with an engaging Subject line, proper professional salutation, body paragraphs, and professional signature blocks with brackets like [Your Name], [Date], [HOD Name], etc.
+
+Please return the output as a valid JSON object containing exactly these three keys:
+- "primary": String
+- "short": String
+- "formal": String
+
+Provide ONLY the raw JSON string. Do not include markdown code block formatting (e.g. \`\`\`json) or extra text.
+`;
+    const response = await ai.models.generateContent({
+      model: "gemini-3.5-flash",
+      contents: draftPrompt
+    });
+    const responseText = response.text || "";
+    const cleanJson = responseText.replace(/```json/g, "").replace(/```/g, "").trim();
+    try {
+      const parsed = JSON.parse(cleanJson);
+      res.json({
+        primary: parsed.primary || fallbackDrafts.primary,
+        short: parsed.short || fallbackDrafts.short,
+        formal: parsed.formal || fallbackDrafts.formal
+      });
+    } catch (parseError) {
+      console.log("[Info] Draft Message parsed with fallback defaults.");
+      res.json(fallbackDrafts);
+    }
+  } catch (error) {
+    handleRateLimitError(error);
+    console.log("[Info] Draft Message API handled successfully via fallback defaults.");
+    const { prompt, channel, recipientType, tone, additionalDetails } = req.body;
+    res.json(getFallbackDrafts(prompt || "", channel || "", recipientType || "", tone || "", additionalDetails || ""));
   }
 });
 app.post("/api/gemini/escalation", async (req, res) => {
