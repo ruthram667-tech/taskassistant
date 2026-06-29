@@ -102,17 +102,17 @@ export default function OverviewPanel({
       try {
         const voices = window.speechSynthesis.getVoices();
         
-        // Priority: Energetic, clear, standard male voices (Matching the user's reference)
+        // Priority: Mature, smooth, clear female voices (avoiding high-pitch/irritating tones)
         const friendly = voices.find(v =>
           v.lang.startsWith("en") && (
-            v.name.includes("Microsoft Guy Online") ||     // Modern neural Windows male
-            v.name.includes("Google UK English Male") ||   // Clear, articulate British male
-            v.name.includes("Google US English Male") ||   // Standard American male
-            v.name.includes("Microsoft Mark") ||           // Windows standard clear male
-            v.name.includes("Daniel") ||                   // macOS standard UK male
-            v.name.includes("Alex")                        // macOS standard US male
+            v.name.includes("Google UK English Female") ||
+            v.name.includes("Google US English") && v.name.includes("Female") ||
+            v.name.includes("Microsoft Zira") ||
+            v.name.includes("Fiona") ||
+            v.name.includes("Samantha") ||
+            v.name.includes("Victoria")
           )
-        ) || voices.find(v => v.lang.startsWith("en") && (v.name.toLowerCase().includes("male") && !v.name.toLowerCase().includes("female")));
+        ) || voices.find(v => v.lang.startsWith("en") && v.name.toLowerCase().includes("female"));
 
         // Split text into meaningful conversational chunks (sentences or clauses)
         // Keeps the punctuation attached to the chunk.
@@ -135,32 +135,32 @@ export default function OverviewPanel({
           const utterance = new SpeechSynthesisUtterance(chunkText);
           if (friendly) utterance.voice = friendly;
 
-          // Base settings (energetic, clear, upbeat male)
-          let pitch = 1.10;
+          // Base settings (mature, smooth female)
+          let pitch = 0.98;
           let rate = 0.95;
 
           const lowerChunk = chunkText.toLowerCase();
 
-          // Apply dynamic emotional inflection
+          // Apply subtle dynamic emotional inflection
           if (chunkText.includes("!") || lowerChunk.includes("great") || lowerChunk.includes("crushing") || lowerChunk.includes("good")) {
-            // Encouraging (higher energy)
-            pitch = 1.20;
+            // Encouraging 
+            pitch = 1.05;
             rate = 1.0;
           } else if (chunkText.includes("?") || lowerChunk.includes("what") || lowerChunk.includes("how")) {
             // Inquisitive 
-            pitch = 1.15;
+            pitch = 1.02;
             rate = 0.95;
           } else if (lowerChunk.includes("overdue") || lowerChunk.includes("critical") || lowerChunk.includes("important") || lowerChunk.includes("flag") || lowerChunk.includes("debt")) {
-            // Serious / Emphasized Guidance (calm, grounded, slower)
-            pitch = 0.95;
-            rate = 0.88;
+            // Serious / Guidance
+            pitch = 0.92;
+            rate = 0.90;
           } else if (chunkText.includes("—") || chunkText.includes("...")) {
-            // Thoughtful pause
-            pitch = 1.05;
+            // Pause
+            pitch = 0.96;
             rate = 0.90;
           } else {
-            // Conversational baseline — randomize pitch very slightly for natural human-like cadence
-            pitch = 1.08 + (Math.random() * 0.04); 
+            // Smooth conversational baseline
+            pitch = 0.98 + (Math.random() * 0.02); 
             rate = 0.95;
           }
 
@@ -277,11 +277,14 @@ export default function OverviewPanel({
       } else if (asksAdvice) {
         // Personalized guidance based on current task state
         if (overdueList.length > 0) {
-          script = `My advice: tackle your overdue tasks first. Start with "${overdueList[0].title}".`;
+          const t = overdueList[0];
+          script = `My advice: tackle your overdue tasks first. "${t.title}" is overdue. ${t.description ? "It involves " + t.description + ". " : ""}You should start working on this now.`;
         } else if (highPriorityList.length > 0) {
-          script = `Focus your energy on your highest priority task: "${highPriorityList[0].title}".`;
+          const t = highPriorityList[0];
+          script = `Focus your energy on your highest priority task: "${t.title}". ${t.description ? "It involves " + t.description + ". " : ""}Let's get this done today.`;
         } else if (pendingList.length > 0) {
-          script = `Pick any pending task and get started!`;
+          const t = pendingList[0];
+          script = `You're in good shape. Pick any pending task, like "${t.title}", and let's get it done.`;
         } else {
           script = `Your board is clear, ${firstName}! Great time to plan ahead.`;
         }
@@ -302,9 +305,19 @@ export default function OverviewPanel({
         else script = `You haven't checked off any tasks yet. Pick the easiest one and start!`;
         whatsapp = `🏆 *PROGRESS*\n\n${completedList.length} completed.`;
       } else {
-        const matched = tasks.filter(t => t.title.toLowerCase().includes(queryLower) || t.description?.toLowerCase().includes(queryLower));
-        if (matched.length > 0) script = `I found ${matched.length} tasks about that. Top match is "${matched[0].title}".`;
-        else script = `I couldn't find any tasks matching that. How else can I help?`;
+        const queryLowerClean = queryLower.replace(/task|what about|tell me about|explain|my/gi, "").trim();
+        const matched = queryLowerClean ? tasks.filter(t => t.title.toLowerCase().includes(queryLowerClean) || t.description?.toLowerCase().includes(queryLowerClean)) : [];
+        
+        if (matched.length > 0) {
+          const t = matched[0];
+          let suggestion = "";
+          if (t.reference && t.reference.length > 0) {
+            suggestion = ` Some suggested topics to review are: ${t.reference.map(r => r.title).join(", ")}.`;
+          }
+          script = `Here is what I know about "${t.title}". ${t.description ? "It is about " + t.description + "." : "There is no description provided."}${suggestion} I suggest you ${t.status === "completed" ? "review it if needed since it's already done." : "start working on it now."}`;
+        } else {
+          script = `I couldn't find any specific tasks matching that. How else can I help?`;
+        }
         whatsapp = `🔍 *SEARCH*\n\nQuery: "${query}"`;
       }
 
