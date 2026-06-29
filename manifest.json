@@ -1,0 +1,31 @@
+{
+  "name": "Task Assist",
+  "short_name": "TaskAssist",
+  "description": "System-Level Call Alerts System for task monitoring",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F3F7F5",
+  "theme_color": "#10b981",
+  "icons": [
+    {
+      "src": "/assets/favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "/assets/favicon.ico",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/assets/favicon.ico",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "permissions": [
+    "notifications",
+    "backgroundSync",
+    "periodicBackgroundSync"
+  ]
+}

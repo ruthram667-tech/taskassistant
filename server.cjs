@@ -894,10 +894,32 @@ app.post("/api/gemini/task-reference", async (req, res) => {
         "Put your phone in another room or close distracting tabs before booting up.",
         "Schedule a quick, rewarding walk or stretch after completing your focus window."
       ]
+    },
+    meeting: {
+      topics: [
+        "1. The 'Listen First' Rule",
+        "2. Clarity Over Complexity",
+        "3. Own the 'Next Steps'",
+        "4. Confidence & Body Language"
+      ],
+      resources: [
+        { name: "Harvard Business Review: Collaborative Client Relations", url: "https://hbr.org", desc: "Actionable, premium tips and strategies on structuring client conversations, active listing, and managing meetings." },
+        { name: "MindTools: Active Listening Guide", url: "https://www.mindtools.com", desc: "Step-by-step guidance on listening actively to client needs and documenting requirements professionally." }
+      ],
+      studyTips: [
+        '1. The "Listen First" Rule\n\u2022 Active Listening: Spend the first few minutes asking open-ended questions about their current challenges. When you listen more than you speak, you gather the exact information needed to frame your solution later.\n\u2022 Take Notes: Keep a notebook or tablet open. It signals to the client that you value their input and take their business seriously.',
+        `2. Clarity Over Complexity
+\u2022 Avoid Jargon: Even if you\u2019re pitching a technical solution, focus on the "What" and "Why" rather than just the "How." Explain the benefit to the client's business or operations in plain language.
+\u2022 The "Rule of Three": Try to limit your key talking points to three main ideas. It makes you easier to remember and helps keep the conversation focused.`,
+        '3. Own the "Next Steps"\n\u2022 End with Action: Never leave a meeting without defining what happens next. Explicitly state, "I will send over the project roadmap by Tuesday," or "Let\u2019s schedule a brief follow-up to review the technical requirements."\n\u2022 Show Initiative: If a question comes up that you cannot answer immediately, acknowledge it directly, promise a follow-up, and then actually deliver it within 24 hours.',
+        "4. Confidence & Body Language\n\u2022 Maintain Eye Contact: It shows engagement and sincerity.\n\u2022 Pause Before Answering: If asked a difficult question, take a two-second pause. It makes you look thoughtful and deliberate rather than impulsive."
+      ]
     }
   };
   let category = "general";
-  if (combinedText.includes("math") || combinedText.includes("calc") || combinedText.includes("algebra") || combinedText.includes("stat") || combinedText.includes("trig") || combinedText.includes("geometry") || combinedText.includes("arithmetic")) {
+  if (combinedText.includes("meeting") || combinedText.includes("client") || combinedText.includes("interview") || combinedText.includes("call") || combinedText.includes("pitch") || combinedText.includes("presentation") || combinedText.includes("negotiation") || combinedText.includes("discussion") || combinedText.includes("talk")) {
+    category = "meeting";
+  } else if (combinedText.includes("math") || combinedText.includes("calc") || combinedText.includes("algebra") || combinedText.includes("stat") || combinedText.includes("trig") || combinedText.includes("geometry") || combinedText.includes("arithmetic")) {
     category = "math";
   } else if (combinedText.includes("code") || combinedText.includes("program") || combinedText.includes("develop") || combinedText.includes("python") || combinedText.includes("javascript") || combinedText.includes("react") || combinedText.includes("css") || combinedText.includes("html") || combinedText.includes("git") || combinedText.includes("bug") || combinedText.includes("software") || combinedText.includes("app") || combinedText.includes("compile") || combinedText.includes("node")) {
     category = "coding";
