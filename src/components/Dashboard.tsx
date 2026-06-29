@@ -379,11 +379,8 @@ export default function Dashboard({ user, googleToken, onLogout }: DashboardProp
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   return (
-    <div className="min-h-screen bg-[#F3F7F5] text-zinc-800 flex flex-col md:flex-row font-sans relative overflow-hidden" id="dashboard_container">
-      {/* Background Ambient Blur Blobs for Glassmorphic Glow */}
-      <div className="absolute top-1/4 left-[-100px] w-[500px] h-[500px] bg-emerald-200/35 rounded-full blur-[100px] pointer-events-none animate-float-slow"></div>
-      <div className="absolute bottom-[-100px] right-[-100px] w-[550px] h-[550px] bg-sky-200/35 rounded-full blur-[110px] pointer-events-none animate-float-medium" style={{ animationDelay: '2s' }}></div>
-      <div className="absolute top-1/3 right-1/4 w-[400px] h-[400px] bg-amber-100/30 rounded-full blur-[90px] pointer-events-none animate-float-slow" style={{ animationDelay: '4s' }}></div>
+    <div className="min-h-screen bg-zinc-50 text-zinc-900 flex flex-col md:flex-row font-sans relative overflow-hidden" id="dashboard_container">
+      {/* Sleek Enterprise Background - clean, no colored ambient blobs */}
 
       {/* Simulation Call Active overlay */}
       {activeSimulation && (
@@ -404,9 +401,9 @@ export default function Dashboard({ user, googleToken, onLogout }: DashboardProp
             <div className="my-10 flex items-center justify-center relative z-10">
               {simState === "ringing" ? (
                 <div className="relative flex items-center justify-center">
-                  <div className="absolute w-24 h-24 bg-emerald-500/10 border border-emerald-500/20 rounded-full animate-ping"></div>
-                  <div className="absolute w-16 h-16 bg-emerald-500/15 border border-emerald-500/20 rounded-full animate-pulse"></div>
-                  <div className="bg-emerald-500 p-5 rounded-full shadow-lg shadow-emerald-500/10">
+                  <div className="absolute w-24 h-24 bg-indigo-500/10 border border-indigo-500/20 rounded-full animate-ping"></div>
+                  <div className="absolute w-16 h-16 bg-indigo-500/15 border border-indigo-500/20 rounded-full animate-pulse"></div>
+                  <div className="bg-zinc-900 p-5 rounded-full shadow-lg">
                     <Phone className="h-8 w-8 text-white" />
                   </div>
                 </div>
@@ -450,7 +447,7 @@ export default function Dashboard({ user, googleToken, onLogout }: DashboardProp
                   </button>
                   <button 
                     onClick={answerCall}
-                    className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 rounded-xl text-xs cursor-pointer transition-colors shadow-lg shadow-emerald-500/10"
+                    className="flex-1 bg-zinc-900 hover:bg-black text-white font-bold py-3 rounded-xl text-xs cursor-pointer transition-colors shadow-lg"
                   >
                     Answer
                   </button>
@@ -503,22 +500,22 @@ export default function Dashboard({ user, googleToken, onLogout }: DashboardProp
         <div className="space-y-6">
           {/* Logo */}
           <div className="flex items-center gap-3 px-2">
-            <div className="bg-emerald-500/10 p-2.5 rounded-xl border border-emerald-500/20 flex items-center justify-center font-bold text-emerald-600 text-xs shadow-sm">
-              <ShieldAlert className="h-5 w-5 text-emerald-600 animate-pulse" />
+            <div className="bg-zinc-900 p-2.5 rounded-xl border border-zinc-800 flex items-center justify-center font-bold text-white text-xs shadow-sm">
+              <ShieldAlert className="h-5 w-5 text-white" />
             </div>
             <div>
               <span className="font-bold text-zinc-900 text-md tracking-tight block">TASK ASSIST</span>
-              <span className="text-[9px] font-mono text-emerald-600 uppercase tracking-widest block">Core Terminal</span>
+              <span className="text-[9px] font-mono text-zinc-500 uppercase tracking-widest block">Core Terminal</span>
             </div>
           </div>
 
           {/* Aesthetic Telemetry Clock */}
-          <div className="bg-white/45 border border-white/50 p-4 rounded-2xl space-y-1.5 shadow-md backdrop-blur-sm">
+          <div className="bg-white border border-zinc-200 p-4 rounded-2xl space-y-1.5 shadow-sm">
             <div className="flex items-center justify-between text-[8px] font-mono font-bold text-zinc-400 uppercase tracking-widest">
               <span>Telemetry State</span>
               <span className="relative flex h-1.5 w-1.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-indigo-500"></span>
               </span>
             </div>
             <div className="text-sm font-mono font-medium text-zinc-800 tracking-wider">
@@ -530,22 +527,22 @@ export default function Dashboard({ user, googleToken, onLogout }: DashboardProp
           </div>
 
           {/* User Widget */}
-          <div className="bg-white/45 border border-white/50 p-4 rounded-2xl shadow-md space-y-2.5 backdrop-blur-sm">
+          <div className="bg-white border border-zinc-200 p-4 rounded-2xl shadow-sm space-y-2.5">
             <div>
               <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest block">OPERATOR</span>
-              <span className="text-xs font-semibold text-zinc-700 block truncate mt-1">{user.displayName || user.email}</span>
+              <span className="text-xs font-semibold text-zinc-900 block truncate mt-1">{user.displayName || user.email}</span>
             </div>
 
-            <div className="border-t border-white/30 pt-2">
+            <div className="border-t border-zinc-100 pt-2">
               <span className="text-[9px] text-zinc-400 font-mono block">Alert Daily Sync:</span>
               <span className="text-xs font-mono font-bold text-zinc-700 flex items-center gap-1.5 mt-0.5">
-                <Clock className="h-3 w-3 text-emerald-500 shrink-0" />
+                <Clock className="h-3 w-3 text-indigo-500 shrink-0" />
                 {defaultNotificationTime || "09:00"}
               </span>
             </div>
 
             <div className="flex gap-1">
-              <span className="text-[9px] font-mono text-emerald-600 bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.5 rounded shadow-sm">
+              <span className="text-[9px] font-mono text-indigo-600 bg-indigo-50 border border-indigo-100 px-1.5 py-0.5 rounded shadow-sm">
                 {googleToken ? "SYNC ACTIVE" : "LOCAL CACHE"}
               </span>
             </div>
@@ -562,8 +559,8 @@ export default function Dashboard({ user, googleToken, onLogout }: DashboardProp
                     onClick={() => setActiveTab(tab.id)}
                     className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all cursor-pointer border ${
                       activeTab === tab.id 
-                        ? "bg-emerald-500/10 text-emerald-700 border-emerald-500/20 shadow-md backdrop-blur-sm" 
-                        : "text-zinc-500 hover:text-zinc-800 hover:bg-white/40 border-transparent hover:border-white/20"
+                        ? "bg-zinc-100 text-zinc-900 border-zinc-200 shadow-sm" 
+                        : "text-zinc-500 hover:text-zinc-800 hover:bg-zinc-50 border-transparent hover:border-zinc-200"
                     }`}
                     id={`sidebar_tab_${tab.id}`}
                   >
@@ -583,8 +580,8 @@ export default function Dashboard({ user, googleToken, onLogout }: DashboardProp
                     onClick={() => setActiveTab(tab.id)}
                     className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all cursor-pointer border ${
                       activeTab === tab.id 
-                        ? "bg-emerald-500/10 text-emerald-700 border-emerald-500/20 shadow-md backdrop-blur-sm" 
-                        : "text-zinc-500 hover:text-zinc-800 hover:bg-white/40 border-transparent hover:border-white/20"
+                        ? "bg-zinc-100 text-zinc-900 border-zinc-200 shadow-sm" 
+                        : "text-zinc-500 hover:text-zinc-800 hover:bg-zinc-50 border-transparent hover:border-zinc-200"
                     }`}
                     id={`sidebar_tab_${tab.id}`}
                   >
@@ -604,8 +601,8 @@ export default function Dashboard({ user, googleToken, onLogout }: DashboardProp
                     onClick={() => setActiveTab(tab.id)}
                     className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all cursor-pointer border ${
                       activeTab === tab.id 
-                        ? "bg-emerald-500/10 text-emerald-700 border-emerald-500/20 shadow-md backdrop-blur-sm" 
-                        : "text-zinc-500 hover:text-zinc-800 hover:bg-white/40 border-transparent hover:border-white/20"
+                        ? "bg-zinc-100 text-zinc-900 border-zinc-200 shadow-sm" 
+                        : "text-zinc-500 hover:text-zinc-800 hover:bg-zinc-50 border-transparent hover:border-zinc-200"
                     }`}
                     id={`sidebar_tab_${tab.id}`}
                   >
@@ -630,9 +627,9 @@ export default function Dashboard({ user, googleToken, onLogout }: DashboardProp
       </aside>
 
       {/* Header - Mobile */}
-      <header className="md:hidden glass-sidebar border-b border-white/20 px-5 py-4 flex items-center justify-between z-30" id="mobile_header">
+      <header className="md:hidden bg-white border-b border-zinc-200 px-5 py-4 flex items-center justify-between z-30" id="mobile_header">
         <div className="flex items-center gap-2">
-          <ShieldAlert className="h-5 w-5 text-emerald-600 animate-pulse" />
+          <ShieldAlert className="h-5 w-5 text-zinc-900" />
           <span className="font-bold text-zinc-900 tracking-tight text-sm">Task Assist</span>
         </div>
         <button 
@@ -645,7 +642,7 @@ export default function Dashboard({ user, googleToken, onLogout }: DashboardProp
 
       {/* Mobile Menu Dropdown */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-white/40 border-b border-white/20 px-5 py-4 space-y-3 backdrop-blur-md z-30 shadow-sm" id="mobile_menu">
+        <div className="md:hidden bg-white border-b border-zinc-200 px-5 py-4 space-y-3 z-30 shadow-sm" id="mobile_menu">
           <nav className="grid grid-cols-2 gap-2">
             {tabs.map((tab) => (
               <button
@@ -656,8 +653,8 @@ export default function Dashboard({ user, googleToken, onLogout }: DashboardProp
                 }}
                 className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-[11px] font-bold transition-all border ${
                   activeTab === tab.id 
-                    ? "bg-emerald-500/10 text-emerald-700 border-emerald-500/20 shadow-sm" 
-                    : "text-zinc-500 bg-white/30 hover:text-zinc-800 border-transparent hover:border-white/20"
+                    ? "bg-zinc-100 text-zinc-900 border-zinc-200 shadow-sm" 
+                    : "text-zinc-500 bg-zinc-50 hover:text-zinc-800 border-transparent hover:border-zinc-200"
                 }`}
                 id={`mobile_tab_${tab.id}`}
               >

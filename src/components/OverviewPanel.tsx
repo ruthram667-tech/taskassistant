@@ -102,16 +102,17 @@ export default function OverviewPanel({
       try {
         const voices = window.speechSynthesis.getVoices();
         
-        // Priority: Mature, clear, standard female voices (Highly legible, calm)
+        // Priority: Energetic, clear, standard male voices (Matching the user's reference)
         const friendly = voices.find(v =>
           v.lang.startsWith("en") && (
-            v.name.includes("Microsoft Zira") ||           // Windows standard clear female
-            v.name.includes("Google UK English Female") || // Clear, mature British pronunciation
-            v.name.includes("Google US English") ||        // Standard, clean American pronunciation
-            v.name.includes("Samantha") ||                 // macOS mature standard female
-            v.name.includes("Microsoft Aria Online")       // Modern neural Windows voice
+            v.name.includes("Microsoft Guy Online") ||     // Modern neural Windows male
+            v.name.includes("Google UK English Male") ||   // Clear, articulate British male
+            v.name.includes("Google US English Male") ||   // Standard American male
+            v.name.includes("Microsoft Mark") ||           // Windows standard clear male
+            v.name.includes("Daniel") ||                   // macOS standard UK male
+            v.name.includes("Alex")                        // macOS standard US male
           )
-        ) || voices.find(v => v.lang.startsWith("en") && v.name.toLowerCase().includes("female"));
+        ) || voices.find(v => v.lang.startsWith("en") && (v.name.toLowerCase().includes("male") && !v.name.toLowerCase().includes("female")));
 
         // Split text into meaningful conversational chunks (sentences or clauses)
         // Keeps the punctuation attached to the chunk.
@@ -134,33 +135,33 @@ export default function OverviewPanel({
           const utterance = new SpeechSynthesisUtterance(chunkText);
           if (friendly) utterance.voice = friendly;
 
-          // Base settings (mature, calm, easily understood)
-          let pitch = 1.0;
-          let rate = 0.90;
+          // Base settings (energetic, clear, upbeat male)
+          let pitch = 1.10;
+          let rate = 0.95;
 
           const lowerChunk = chunkText.toLowerCase();
 
-          // Apply dynamic emotional inflection (kept subtle to maintain mature tone)
+          // Apply dynamic emotional inflection
           if (chunkText.includes("!") || lowerChunk.includes("great") || lowerChunk.includes("crushing") || lowerChunk.includes("good")) {
-            // Encouraging (slightly warmer, slightly faster)
-            pitch = 1.05;
-            rate = 0.93;
+            // Encouraging (higher energy)
+            pitch = 1.20;
+            rate = 1.0;
           } else if (chunkText.includes("?") || lowerChunk.includes("what") || lowerChunk.includes("how")) {
             // Inquisitive 
-            pitch = 1.05;
-            rate = 0.90;
+            pitch = 1.15;
+            rate = 0.95;
           } else if (lowerChunk.includes("overdue") || lowerChunk.includes("critical") || lowerChunk.includes("important") || lowerChunk.includes("flag") || lowerChunk.includes("debt")) {
             // Serious / Emphasized Guidance (calm, grounded, slower)
-            pitch = 0.88;
-            rate = 0.85;
-          } else if (chunkText.includes("—") || chunkText.includes("...")) {
-            // Thoughtful pause
             pitch = 0.95;
             rate = 0.88;
-          } else {
-            // Conversational baseline — randomize pitch very slightly for natural human-like cadence irregularity
-            pitch = 0.98 + (Math.random() * 0.04); 
+          } else if (chunkText.includes("—") || chunkText.includes("...")) {
+            // Thoughtful pause
+            pitch = 1.05;
             rate = 0.90;
+          } else {
+            // Conversational baseline — randomize pitch very slightly for natural human-like cadence
+            pitch = 1.08 + (Math.random() * 0.04); 
+            rate = 0.95;
           }
 
           utterance.pitch = pitch;
@@ -501,11 +502,11 @@ export default function OverviewPanel({
       {/* Elegant Header & Dynamic Greeting */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/20 pb-5 mb-4" id="greeting_banner">
         <div>
-          <span className="text-[10px] font-mono font-extrabold tracking-[0.2em] text-[#1D4D32] bg-[#E2ECE6] px-3.5 py-1.5 rounded-full uppercase mb-2.5 inline-block border border-white/20 shadow-sm">
+          <span className="text-[10px] font-mono font-extrabold tracking-[0.2em] text-zinc-700 bg-zinc-100 px-3.5 py-1.5 rounded-full uppercase mb-2.5 inline-block border border-zinc-200 shadow-sm">
             Autonomous Operator Terminal
           </span>
-          <h1 className="text-4xl font-serif text-[#163020] tracking-tight font-medium">
-            {isReturningUser ? "Welcome back, " : "Welcome to Task Assist, "}<span className="font-serif font-bold text-[#059669]">{userName || "John"}</span>
+          <h1 className="text-4xl font-serif text-zinc-900 tracking-tight font-medium">
+            {isReturningUser ? "Welcome back, " : "Welcome to Task Assist, "}<span className="font-serif font-bold text-indigo-600">{userName || "John"}</span>
           </h1>
           <p className="text-zinc-500 mt-2 italic font-serif text-xs leading-relaxed max-w-2xl">
             {tips ? `"${tips.quote.split(" - ")[0]}"` : `"Concentrate all your thoughts upon the work of hand. The sun's rays do not burn until brought to a focus."`}
@@ -513,12 +514,12 @@ export default function OverviewPanel({
         </div>
         
         {/* Floating Capsule at Header */}
-        <div className="bg-white/50 border border-white/60 px-4 py-2.5 rounded-full flex items-center gap-2.5 shrink-0 self-start sm:self-auto shadow-md backdrop-blur-md" id="autonomous_badge">
+        <div className="bg-white border border-zinc-200 px-4 py-2.5 rounded-full flex items-center gap-2.5 shrink-0 self-start sm:self-auto shadow-sm" id="autonomous_badge">
           <span className="relative flex h-2.5 w-2.5">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-indigo-500"></span>
           </span>
-          <span className="text-[10px] font-mono font-extrabold uppercase tracking-[0.15em] text-emerald-750">Core Online</span>
+          <span className="text-[10px] font-mono font-extrabold uppercase tracking-[0.15em] text-indigo-600">Core Online</span>
         </div>
       </div>
 
@@ -539,16 +540,16 @@ export default function OverviewPanel({
         </div>
 
         {/* RESOLVED */}
-        <div className="glass-card hover:border-white/80 rounded-2xl p-5 flex flex-col justify-between shadow-sm transition-all duration-300 hover:scale-[1.01] hover:shadow-md" id="stat_completed">
+        <div className="glass-card hover:border-zinc-300 rounded-2xl p-5 flex flex-col justify-between shadow-sm transition-all duration-300 hover:scale-[1.01] hover:shadow-md bg-white border border-zinc-200" id="stat_completed">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-mono font-extrabold uppercase tracking-[0.12em] text-emerald-700">Resolved</span>
-            <div className="p-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 shadow-sm flex items-center justify-center">
-              <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
+            <span className="text-[10px] font-mono font-extrabold uppercase tracking-[0.12em] text-indigo-600">Resolved</span>
+            <div className="p-1.5 rounded-full bg-indigo-50 border border-indigo-100 shadow-sm flex items-center justify-center">
+              <CheckCircle2 className="h-3.5 w-3.5 text-indigo-500" />
             </div>
           </div>
           <div className="mt-4 flex items-center gap-2">
             <span className="text-4xl font-display font-medium text-zinc-800 leading-none">{completedTasks}</span>
-            <span className="text-[9px] font-mono font-extrabold text-[#059669] uppercase tracking-wider mt-1.5">Completed</span>
+            <span className="text-[9px] font-mono font-extrabold text-indigo-500 uppercase tracking-wider mt-1.5">Completed</span>
           </div>
         </div>
 
@@ -595,12 +596,12 @@ export default function OverviewPanel({
             <div className="relative flex items-center justify-center">
               {/* Elegant dual SVG ring with micro glowing accent */}
               <svg className="w-32 h-32 transform -rotate-90">
-                <circle cx="64" cy="64" r="52" strokeWidth="4.5" stroke="rgba(255,255,255,0.3)" fill="transparent" />
-                <circle cx="64" cy="64" r="52" strokeWidth="6" stroke="#10b981" fill="transparent" 
+                <circle cx="64" cy="64" r="52" strokeWidth="4.5" stroke="rgba(0,0,0,0.05)" fill="transparent" />
+                <circle cx="64" cy="64" r="52" strokeWidth="6" stroke="#4F46E5" fill="transparent" 
                   strokeDasharray={2 * Math.PI * 52}
                   strokeDashoffset={2 * Math.PI * 52 * (1 - completionRate / 100)}
                   strokeLinecap="round"
-                  className="transition-all duration-1000 ease-out drop-shadow-[0_0_4px_rgba(16,185,129,0.25)]"
+                  className="transition-all duration-1000 ease-out"
                 />
               </svg>
               <div className="absolute flex flex-col items-center">
@@ -627,29 +628,26 @@ export default function OverviewPanel({
             {/* Resolved sparkline */}
             <div className="space-y-1">
               <div className="flex items-end justify-between h-6">
-                <svg className="h-5 w-full stroke-emerald-500 fill-none opacity-80" viewBox="0 0 100 20" preserveAspectRatio="none">
+                <svg className="h-5 w-full stroke-indigo-500 fill-none opacity-80" viewBox="0 0 100 20" preserveAspectRatio="none">
                   <path d="M0,16 L15,14 L30,8 L45,11 L60,5 L75,9 L90,3 L100,4" strokeWidth="1.8" strokeLinecap="round" />
                 </svg>
               </div>
               <div className="text-[9px] font-mono text-zinc-500">
-                <span className="font-bold text-emerald-600">{completedTasks}</span> Resolved
+                <span className="font-bold text-indigo-600">{completedTasks}</span> Resolved
               </div>
             </div>
           </div>
         </div>
 
-        {/* Task Assist Voice Persona - Interactive AI Voice Agent */}
-        <div className="glass-card rounded-2xl p-6 relative overflow-hidden shadow-md md:col-span-2 flex flex-col justify-between" id="voice_persona_card">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 blur-3xl rounded-full"></div>
-          
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 border-b border-white/20 pb-3.5">
+        <div className="bg-white border border-zinc-200 rounded-2xl p-6 relative overflow-hidden shadow-sm md:col-span-2 flex flex-col justify-between" id="voice_persona_card">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 border-b border-zinc-100 pb-3.5">
             <div className="flex items-center gap-3">
               <div className="relative">
-                <Mic className={`h-5 w-5 ${isSpeaking || isListening ? "text-emerald-600" : "text-zinc-500"}`} />
+                <Mic className={`h-5 w-5 ${isSpeaking || isListening ? "text-indigo-600" : "text-zinc-500"}`} />
                 {(isSpeaking || isListening) && (
                   <span className="absolute -top-1 -right-1 flex h-1.5 w-1.5">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-indigo-500"></span>
                   </span>
                 )}
               </div>
@@ -663,7 +661,7 @@ export default function OverviewPanel({
               {isSpeaking && (
                 <button 
                   onClick={stopSpeech}
-                  className="px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 rounded-lg text-[9px] font-bold uppercase tracking-wider transition-colors cursor-pointer shadow-sm"
+                  className="px-2.5 py-1 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 border border-zinc-200 rounded-lg text-[9px] font-bold uppercase tracking-wider transition-colors cursor-pointer shadow-sm"
                   id="stop_speech_btn"
                 >
                   Mute
@@ -671,12 +669,12 @@ export default function OverviewPanel({
               )}
               <div className={`px-3 py-1 rounded-full text-[9px] font-mono font-bold uppercase tracking-wider border ${
                 isSpeaking 
-                  ? "bg-emerald-50 text-emerald-600 border-emerald-200" 
+                  ? "bg-indigo-50 text-indigo-600 border-indigo-200" 
                   : isListening 
-                  ? "bg-blue-50 text-blue-600 border-blue-200 animate-pulse"
+                  ? "bg-zinc-900 text-white border-zinc-800 animate-pulse"
                   : isGenerating
-                  ? "bg-amber-50 text-amber-600 border-amber-200 animate-pulse"
-                  : "bg-white/50 border-white/70 text-zinc-500"
+                  ? "bg-zinc-100 text-zinc-600 border-zinc-200 animate-pulse"
+                  : "bg-zinc-50 border-zinc-200 text-zinc-400"
               }`}>
                 {isSpeaking ? "Speaking" : isListening ? "Listening" : isGenerating ? "Briefing..." : "Standby"}
               </div>
@@ -692,24 +690,24 @@ export default function OverviewPanel({
 
           {/* Core Controls */}
           <div className="grid grid-cols-1 md:grid-cols-5 gap-5" id="voice_activator_container">
-            <div className="md:col-span-2 flex flex-col items-center justify-center text-center p-4 bg-white/20 border border-white/30 backdrop-blur-sm rounded-2xl relative group shadow-sm">
+            <div className="md:col-span-2 flex flex-col items-center justify-center text-center p-4 bg-zinc-50 border border-zinc-100 rounded-2xl relative group shadow-inner">
               
-              {/* High fidelity Concentric device button from reference UI */}
+              {/* High fidelity Concentric device button */}
               <div className="relative flex items-center justify-center h-24 w-24">
-                <div className={`absolute h-24 w-24 rounded-full bg-emerald-500/5 border border-emerald-500/10 transition-all duration-1000 ${isSpeaking || isListening ? "scale-110 animate-ping" : "group-hover:scale-105"}`}></div>
-                <div className={`absolute h-20 w-20 rounded-full bg-emerald-500/10 border border-emerald-500/20 transition-all duration-1000 ${isSpeaking || isListening ? "scale-105 animate-pulse" : "group-hover:scale-102"}`}></div>
+                <div className={`absolute h-24 w-24 rounded-full bg-indigo-500/5 border border-indigo-500/10 transition-all duration-1000 ${isSpeaking || isListening ? "scale-110 animate-ping" : "group-hover:scale-105"}`}></div>
+                <div className={`absolute h-20 w-20 rounded-full bg-indigo-500/10 border border-indigo-500/20 transition-all duration-1000 ${isSpeaking || isListening ? "scale-105 animate-pulse" : "group-hover:scale-102"}`}></div>
                 
                 <button
                   onClick={handleVoiceTrigger}
                   disabled={isGenerating}
                   className={`relative h-14 w-14 rounded-full flex items-center justify-center transition-all duration-300 shadow-md border cursor-pointer ${
                     isSpeaking 
-                      ? "bg-[#10b981] border-emerald-400 text-white pulse-glow-green" 
+                      ? "bg-indigo-600 border-indigo-400 text-white" 
                       : isListening 
-                      ? "bg-blue-500 border-blue-400 text-white shadow-lg shadow-blue-500/30"
+                      ? "bg-zinc-900 border-zinc-700 text-white shadow-lg"
                       : isGenerating
-                      ? "bg-amber-500 border-amber-400 text-white animate-pulse"
-                      : "bg-white hover:bg-[#EBF5F0] text-emerald-600 border-zinc-200 hover:border-emerald-500/35"
+                      ? "bg-zinc-200 border-zinc-300 text-zinc-500 animate-pulse"
+                      : "bg-white hover:bg-zinc-100 text-indigo-600 border-zinc-200 hover:border-indigo-200"
                   }`}
                   id="voice_trigger_button"
                   title="Press to initiate voice briefing"
@@ -729,8 +727,8 @@ export default function OverviewPanel({
             </div>
 
             {/* Voice Output and Script block */}
-            <div className="md:col-span-3 flex flex-col justify-between p-4 bg-white/30 border border-white/40 backdrop-blur-sm rounded-2xl min-h-[160px] shadow-sm relative overflow-hidden">
-              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-500/25 via-white/40 to-emerald-500/25"></div>
+            <div className="md:col-span-3 flex flex-col justify-between p-4 bg-zinc-50 border border-zinc-100 rounded-2xl min-h-[160px] shadow-sm relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500/20 via-zinc-200 to-indigo-500/20"></div>
               
               <div className="space-y-1.5 h-full flex flex-col justify-between">
                 <div className="flex items-center justify-between">
@@ -738,7 +736,7 @@ export default function OverviewPanel({
                   {whatsappBriefing && (
                     <button 
                       onClick={copyBriefingToClipboard}
-                      className="text-[8px] font-mono font-bold text-emerald-700 hover:text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-1.5 py-0.5 rounded transition-colors cursor-pointer shadow-sm"
+                      className="text-[8px] font-mono font-bold text-zinc-700 hover:text-zinc-900 bg-white hover:bg-zinc-100 border border-zinc-200 px-1.5 py-0.5 rounded transition-colors cursor-pointer shadow-sm"
                     >
                       Copy WhatsApp
                     </button>

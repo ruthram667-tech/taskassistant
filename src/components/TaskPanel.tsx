@@ -304,7 +304,7 @@ export default function TaskPanel({ tasks, onAddTask, onUpdateTask, onDeleteTask
               <div className="bg-white/35 p-4 rounded-xl border border-white/40 space-y-3 shadow-sm backdrop-blur-sm">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Shield className="h-4 w-4 text-emerald-600 opacity-80" />
+                    <Shield className="h-4 w-4 text-zinc-900 opacity-80" />
                     <div>
                       <span className="text-xs font-bold text-zinc-900 block">Phone alerts</span>
                       <span className="text-[10px] text-zinc-500">Call me if task is overdue</span>
@@ -317,7 +317,7 @@ export default function TaskPanel({ tasks, onAddTask, onUpdateTask, onDeleteTask
                       onChange={(e) => setEscalationEnabled(e.target.checked)}
                       className="sr-only peer"
                     />
-                    <div className="w-9 h-5 bg-white/50 border border-white/50 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:height-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
+                    <div className="w-9 h-5 bg-white/50 border border-white/50 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:height-4 after:w-4 after:transition-all peer-checked:bg-indigo-600"></div>
                   </label>
                 </div>
 
@@ -361,11 +361,11 @@ export default function TaskPanel({ tasks, onAddTask, onUpdateTask, onDeleteTask
 
       {/* Gemini Focus Queue Card */}
       <div className="glass-card rounded-2xl p-6 relative overflow-hidden mb-6 shadow-md" id="gemini_focus_queue_section">
-        <div className="absolute top-0 right-0 w-48 h-48 bg-emerald-500/5 blur-3xl rounded-full"></div>
+        <div className="absolute top-0 right-0 w-48 h-48 bg-indigo-500/5 blur-3xl rounded-full"></div>
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-emerald-500/10 border border-emerald-500/20 rounded-xl shadow-sm">
-              <Sparkles className="h-5 w-5 text-emerald-600" />
+            <div className="p-2.5 bg-zinc-100 border border-zinc-200 rounded-xl shadow-sm">
+              <Sparkles className="h-5 w-5 text-zinc-900" />
             </div>
             <div>
               <h3 className="text-sm font-bold text-zinc-900 tracking-tight">Focus Queue</h3>
@@ -375,7 +375,7 @@ export default function TaskPanel({ tasks, onAddTask, onUpdateTask, onDeleteTask
           <button
             onClick={handleGenerateFocusQueue}
             disabled={loadingQueue || tasks.filter(t => t.status !== "completed").length === 0}
-            className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer shadow-md"
+            className="flex items-center gap-2 bg-zinc-900 hover:bg-black disabled:opacity-50 text-white px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer shadow-md"
           >
             {loadingQueue ? (
               <>
@@ -413,7 +413,7 @@ export default function TaskPanel({ tasks, onAddTask, onUpdateTask, onDeleteTask
                 <div key={idx} className="bg-white/40 border border-white/45 p-4 rounded-xl flex flex-col justify-between space-y-2 shadow-sm backdrop-blur-sm">
                   <div>
                     <div className="flex items-center justify-between gap-2">
-                      <span className="text-[9px] font-mono font-bold text-emerald-700 uppercase tracking-widest">
+                      <span className="text-[9px] font-mono font-bold text-zinc-700 uppercase tracking-widest">
                         {item.recommendedStartTime} ({item.duration}m)
                       </span>
                       <span className="text-[10px] font-mono text-zinc-400">Step {idx + 1}</span>
@@ -427,7 +427,7 @@ export default function TaskPanel({ tasks, onAddTask, onUpdateTask, onDeleteTask
 
             {/* Productivity Tip footer */}
             <div className="flex items-center gap-2 text-[11px] font-mono text-zinc-500 pt-2 border-t border-white/20 flex-wrap">
-              <span className="text-emerald-600 font-bold uppercase tracking-wider">Tip:</span>
+              <span className="text-zinc-700 font-bold uppercase tracking-wider">Tip:</span>
               <span>{focusQueue.productivityTip}</span>
             </div>
           </div>
@@ -512,7 +512,6 @@ export default function TaskPanel({ tasks, onAddTask, onUpdateTask, onDeleteTask
                     className={`p-4 md:p-5 flex flex-col md:grid md:grid-cols-12 md:items-center gap-4 transition-all hover:bg-white/40 ${isOverdue ? "bg-red-500/10" : task.status === "completed" ? "opacity-75 bg-white/10" : ""}`}
                     id={`task_row_${task.id}`}
                   >
-                    {/* Column 1: Completed / Status (Toggle) */}
                     <div className="col-span-2 flex items-center">
                       <button 
                         onClick={() => onUpdateTask(task.id, { status: task.status === "completed" ? "pending" : "completed" })}
@@ -521,12 +520,12 @@ export default function TaskPanel({ tasks, onAddTask, onUpdateTask, onDeleteTask
                       >
                         {task.status === "completed" ? (
                            <>
-                             <CheckCircle2 className="h-5 w-5 text-emerald-600 shrink-0" />
-                             <span className="text-[11px] font-bold font-mono text-emerald-600 tracking-wider">DONE</span>
+                             <CheckCircle2 className="h-5 w-5 text-indigo-600 shrink-0" />
+                             <span className="text-[11px] font-bold font-mono text-indigo-600 tracking-wider">DONE</span>
                            </>
                         ) : (
                            <>
-                             <Circle className="h-5 w-5 opacity-40 shrink-0 group-hover:opacity-80 group-hover:text-emerald-600" />
+                             <Circle className="h-5 w-5 opacity-40 shrink-0 group-hover:opacity-80 group-hover:text-indigo-600" />
                              <span className="text-[11px] font-bold font-mono text-zinc-400 tracking-wider group-hover:text-zinc-750">PENDING</span>
                            </>
                         )}
@@ -557,11 +556,11 @@ export default function TaskPanel({ tasks, onAddTask, onUpdateTask, onDeleteTask
                           className={`inline-flex items-center gap-1.5 text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-1 rounded-md transition-all cursor-pointer ${
                             task.reference
                               ? expandedReferenceTaskId === task.id
-                                ? "bg-emerald-600 text-white font-semibold shadow-sm"
-                                : "bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100/50"
+                                ? "bg-indigo-600 text-white font-semibold shadow-sm"
+                                : "bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-100/50"
                               : loadingReferenceTaskId === task.id
                               ? "bg-zinc-100 text-zinc-450 animate-pulse border border-zinc-200"
-                              : "bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100/50"
+                              : "bg-zinc-50 text-zinc-700 border border-zinc-200 hover:bg-zinc-100/50"
                           }`}
                           id={`task_reference_btn_${task.id}`}
                         >
@@ -591,7 +590,7 @@ export default function TaskPanel({ tasks, onAddTask, onUpdateTask, onDeleteTask
                         <span className="text-zinc-400 text-[9px] pl-4">at {task.dueTime}</span>
                       )}
                       {task.scheduledTime && (
-                        <span className="flex items-center gap-1 pl-4 text-emerald-600 text-[9px] font-bold">
+                        <span className="flex items-center gap-1 pl-4 text-indigo-600 text-[9px] font-bold">
                           <span className="animate-pulse">🔔</span> Alarm: {task.scheduledTime.replace("T", " ")}
                         </span>
                       )}

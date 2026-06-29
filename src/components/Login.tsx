@@ -167,56 +167,29 @@ export default function Login({ onAuthSuccess }: LoginProps) {
 
   return (
     <div 
-      className="min-h-screen bg-[#F3F7F5] text-zinc-850 flex flex-col justify-between p-4 sm:p-6 font-sans antialiased selection:bg-emerald-500 selection:text-white relative overflow-hidden" 
+      className="min-h-screen bg-zinc-50 text-zinc-900 flex flex-col justify-between p-4 sm:p-6 font-sans antialiased selection:bg-indigo-500 selection:text-white relative overflow-hidden" 
       id="login_screen_root"
     >
-      {/* Visual Style: Soft ambient background with floating animated blur blobs for Light Mode */}
+      {/* Visual Style: Clean, professional off-white background */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
-        {/* Soft Teal Blob */}
-        <motion.div 
-          animate={{
-            x: [0, 40, -20, 0],
-            y: [0, -50, 30, 0],
-            scale: [1, 1.15, 0.9, 1]
-          }}
-          transition={{
-            duration: 18,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-          className="absolute -top-40 -left-40 w-[600px] h-[600px] bg-emerald-100/40 rounded-full blur-[140px]"
-        />
-        
-        {/* Soft Mint/Cyan Blob */}
-        <motion.div 
-          animate={{
-            x: [0, -60, 40, 0],
-            y: [0, 40, -50, 0],
-            scale: [1, 0.9, 1.1, 1]
-          }}
-          transition={{
-            duration: 22,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-          className="absolute -bottom-40 -right-40 w-[650px] h-[650px] bg-teal-100/40 rounded-full blur-[150px]"
-        />
+        {/* Subtle top glow */}
+        <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-indigo-50/50 rounded-full blur-[100px]" />
       </div>
 
       {/* Top minimal header bar */}
       <header className="w-full max-w-6xl mx-auto flex justify-between items-center py-4 px-4 bg-transparent relative z-10" id="login_top_header">
         <div className="flex items-center gap-3" id="header_logo_group">
-          <div className="h-8 w-8 bg-emerald-100 border border-emerald-500/20 text-emerald-600 rounded-xl flex items-center justify-center font-bold text-sm shadow-sm">
+          <div className="h-8 w-8 bg-zinc-900 border border-zinc-800 text-white rounded-xl flex items-center justify-center font-bold text-sm shadow-sm">
             <Shield className="w-4 h-4" />
           </div>
           <div className="flex flex-col">
-            <span className="font-bold text-xs tracking-widest uppercase font-mono text-zinc-800">Task Assist</span>
-            <span className="text-[8px] font-mono uppercase text-emerald-600 tracking-widest -mt-0.5">Vocal Operations</span>
+            <span className="font-bold text-xs tracking-widest uppercase font-mono text-zinc-900">Task Assist</span>
+            <span className="text-[8px] font-mono uppercase text-zinc-500 tracking-widest -mt-0.5">Vocal Operations</span>
           </div>
         </div>
         <div className="flex items-center gap-4 text-[10px] font-mono uppercase tracking-wider" id="header_status">
-          <span className="flex items-center gap-1.5 bg-white border border-emerald-500/20 px-3 py-1 rounded-full text-zinc-600 shadow-sm">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]"></span>
+          <span className="flex items-center gap-1.5 bg-white border border-zinc-200 px-3 py-1 rounded-full text-zinc-600 shadow-sm">
+            <span className="h-1.5 w-1.5 rounded-full bg-indigo-500 animate-pulse shadow-[0_0_8px_rgba(79,70,229,0.5)]"></span>
             Cloud Sandbox v2.5
           </span>
         </div>
@@ -228,11 +201,11 @@ export default function Login({ onAuthSuccess }: LoginProps) {
           
           {/* Main Elevated Card with Layered Depth Effects */}
           <div 
-            className="bg-white border border-emerald-500/10 rounded-[32px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-6 sm:p-8 flex flex-col relative overflow-hidden" 
+            className="bg-white border border-zinc-200 rounded-[32px] shadow-sm p-6 sm:p-8 flex flex-col relative overflow-hidden" 
             id="auth_card_container"
           >
             {/* Fine border linear accent on top of card */}
-            <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-emerald-400 via-teal-400 to-emerald-400" />
+            <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-indigo-400 via-indigo-500 to-indigo-400" />
 
             <AnimatePresence mode="wait">
               {loginProcessState !== "idle" ? (
@@ -250,10 +223,10 @@ export default function Login({ onAuthSuccess }: LoginProps) {
                   <div className="text-center space-y-3">
                     <div className="relative inline-flex items-center justify-center">
                       {/* Decorative outer rings */}
-                      <div className="absolute inset-0 rounded-full border border-emerald-500/30 animate-ping opacity-50" />
-                      <div className="absolute -inset-1.5 rounded-2xl border border-teal-500/20 animate-spin [animation-duration:8s]" />
+                      <div className="absolute inset-0 rounded-full border border-indigo-500/20 animate-ping opacity-50" />
+                      <div className="absolute -inset-1.5 rounded-2xl border border-indigo-500/10 animate-spin [animation-duration:8s]" />
                       
-                      <div className="h-14 w-14 bg-emerald-50 border border-emerald-500/20 rounded-2xl flex items-center justify-center text-emerald-600 shadow-sm">
+                      <div className="h-14 w-14 bg-indigo-50 border border-indigo-100 rounded-2xl flex items-center justify-center text-indigo-600 shadow-sm">
                         <Loader2 className="h-7 w-7 animate-spin" />
                       </div>
                     </div>
@@ -266,7 +239,7 @@ export default function Login({ onAuthSuccess }: LoginProps) {
                   {/* Interactive Status Timeline */}
                   <div className="p-4 border border-zinc-100 rounded-2xl bg-zinc-50 shadow-inner space-y-3">
                     <div className="flex items-center gap-2 border-b border-zinc-200 pb-2 mb-1">
-                      <Terminal className="h-3 w-3 text-emerald-600" />
+                      <Terminal className="h-3 w-3 text-indigo-600" />
                       <span className="font-mono text-[9px] font-bold text-zinc-500 uppercase tracking-wider">Calibration Output</span>
                     </div>
 
@@ -281,18 +254,18 @@ export default function Login({ onAuthSuccess }: LoginProps) {
                             key={step.id} 
                             className={`flex items-center justify-between text-xs font-mono transition-all duration-300 ${
                               isCompleted 
-                                ? "text-emerald-600 font-medium" 
+                                ? "text-zinc-900 font-medium" 
                                 : isActive 
-                                  ? "text-teal-600 font-bold" 
+                                  ? "text-indigo-600 font-bold" 
                                   : "text-zinc-400"
                             }`}
                           >
                             <div className="flex items-center gap-3">
                               <div className={`h-6 w-6 rounded-lg flex items-center justify-center border transition-all duration-300 ${
                                 isCompleted 
-                                  ? "bg-emerald-50 border-emerald-500/30 text-emerald-600 shadow-sm" 
+                                  ? "bg-zinc-100 border-zinc-300 text-zinc-900 shadow-sm" 
                                   : isActive 
-                                    ? "border-teal-500/40 text-teal-600 bg-teal-50 animate-pulse" 
+                                    ? "border-indigo-200 text-indigo-600 bg-indigo-50 animate-pulse" 
                                     : "border-zinc-200 bg-zinc-100 text-zinc-400"
                               }`}>
                                 {isCompleted ? (
@@ -304,7 +277,7 @@ export default function Login({ onAuthSuccess }: LoginProps) {
                               <span className="text-[11px] font-mono tracking-tight">{step.text}</span>
                             </div>
                             {isActive && !isCompleted && (
-                              <Loader2 className="h-3 w-3 animate-spin text-teal-400 shrink-0" />
+                              <Loader2 className="h-3 w-3 animate-spin text-indigo-400 shrink-0" />
                             )}
                           </div>
                         );
@@ -318,7 +291,7 @@ export default function Login({ onAuthSuccess }: LoginProps) {
                       <motion.p 
                         initial={{ opacity: 0, y: 5 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="text-[11px] text-emerald-400 font-semibold flex items-center justify-center gap-1.5 font-mono"
+                        className="text-[11px] text-indigo-600 font-semibold flex items-center justify-center gap-1.5 font-mono"
                       >
                         <Check className="h-3.5 w-3.5" /> Synchronized perfectly. Deploying dashboard...
                       </motion.p>
@@ -340,10 +313,10 @@ export default function Login({ onAuthSuccess }: LoginProps) {
                   key="initial_options_view"
                 >
                   <div className="text-center space-y-1.5" id="auth_headline_group">
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-500/20 text-emerald-700 text-[9px] font-mono uppercase tracking-widest font-bold">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-100 border border-zinc-200 text-zinc-800 text-[9px] font-mono uppercase tracking-widest font-bold">
                       <Shield className="h-3 w-3" /> Secure Gatekeeper
                     </span>
-                    <h2 className="text-xl sm:text-2xl font-extrabold text-zinc-800 tracking-tight leading-tight mt-2">
+                    <h2 className="text-xl sm:text-2xl font-extrabold text-zinc-900 tracking-tight leading-tight mt-2">
                       Access Task Assist
                     </h2>
                     <p className="text-zinc-500 text-xs font-normal max-w-sm mx-auto leading-relaxed">
@@ -377,7 +350,7 @@ export default function Login({ onAuthSuccess }: LoginProps) {
                           placeholder="John Doe"
                           value={nameInput}
                           onChange={(e) => setNameInput(e.target.value)}
-                          className="w-full h-11 pl-10 pr-3 bg-zinc-50 border border-zinc-200 focus:border-emerald-500/50 text-zinc-800 text-xs rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all placeholder-zinc-400"
+                          className="w-full h-11 pl-10 pr-3 bg-zinc-50 border border-zinc-200 focus:border-indigo-500/50 text-zinc-900 text-xs rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all placeholder-zinc-400"
                         />
                       </div>
                     </div>
@@ -398,7 +371,7 @@ export default function Login({ onAuthSuccess }: LoginProps) {
                           placeholder="john@example.com"
                           value={emailInput}
                           onChange={(e) => setEmailInput(e.target.value)}
-                          className="w-full h-11 pl-10 pr-3 bg-zinc-50 border border-zinc-200 focus:border-emerald-500/50 text-zinc-800 text-xs rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all placeholder-zinc-400"
+                          className="w-full h-11 pl-10 pr-3 bg-zinc-50 border border-zinc-200 focus:border-indigo-500/50 text-zinc-900 text-xs rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all placeholder-zinc-400"
                         />
                       </div>
                     </div>
@@ -408,7 +381,7 @@ export default function Login({ onAuthSuccess }: LoginProps) {
                       whileHover={{ scale: 1.01, y: -1 }}
                       whileTap={{ scale: 0.98 }}
                       type="submit"
-                      className="w-full h-11 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md mt-4"
+                      className="w-full h-11 bg-zinc-900 hover:bg-black text-white text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm mt-4"
                       id="custom_form_submit_btn"
                     >
                       Authenticate Operator <ArrowRight className="h-3.5 w-3.5" />
