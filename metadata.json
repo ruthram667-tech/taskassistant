@@ -1,0 +1,6 @@
+{
+  "name": "Task Assist",
+  "description": "An autonomous task management and communication assistant that orchestrates schedules, contacts, notifications, and escalation calls.",
+  "requestFramePermissions": ["notifications", "microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
