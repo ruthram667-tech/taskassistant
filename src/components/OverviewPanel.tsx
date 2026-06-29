@@ -280,10 +280,11 @@ export default function OverviewPanel({
           script = `My advice: tackle your overdue tasks first. Start with "${overdueList[0].title}".`;
         } else if (highPriorityList.length > 0) {
           script = `Focus your energy on your highest priority task: "${highPriorityList[0].title}".`;
-        if (overdueList.length > 0) script = `Handle the overdue ones first: "${overdueList[0].title}".`;
-        else if (highPriorityList.length > 0) script = `Focus on your high priority: "${highPriorityList[0].title}".`;
-        else if (pendingList.length > 0) script = `Pick any pending task and get started!`;
-        else script = `Your board is clear, ${firstName}! Great time to plan ahead.`;
+        } else if (pendingList.length > 0) {
+          script = `Pick any pending task and get started!`;
+        } else {
+          script = `Your board is clear, ${firstName}! Great time to plan ahead.`;
+        }
         whatsapp = `💡 *GUIDANCE*\n\n"Focus on your top priorities."`;
       } else if (asksMotivation) {
         script = `You've got this, ${firstName}. Just start with 5 minutes of focus and the momentum will follow. Let's get it done!`;
