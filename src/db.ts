@@ -37,6 +37,7 @@ class TaskAssistDexie extends Dexie {
   tasks!: Table<DBTask, string>;
   call_logs!: Table<DBCallLog, string>;
   settings!: Table<DBSettings, string>;
+  message_drafts!: Table<any, string>;
 
   constructor() {
     super("TaskAssistDB");
@@ -45,6 +46,12 @@ class TaskAssistDexie extends Dexie {
       tasks: "id, title, due_date, urgency, status, alerts_enabled",
       call_logs: "id, task_id, timestamp, status",
       settings: "user_email, theme_preference"
+    });
+    this.version(2).stores({
+      tasks: "id, title, due_date, urgency, status, alerts_enabled",
+      call_logs: "id, task_id, timestamp, status",
+      settings: "user_email, theme_preference",
+      message_drafts: "id, userId, createdAt"
     });
   }
 }

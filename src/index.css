@@ -163,4 +163,22 @@
   animation: sparkle 6s infinite ease-in-out;
 }
 
+/* ===== GLOBAL TEXT DARKNESS BOOST ===== */
+/* Darken muted/secondary text across the entire dashboard for better legibility */
+body {
+  color: #111827; /* Near-black for all base text */
+}
 
+/* Boost zinc-400 / zinc-500 muted labels to be clearly readable */
+.text-zinc-400 { color: #52525b !important; }
+.text-zinc-500 { color: #3f3f46 !important; }
+.text-zinc-600 { color: #27272a !important; }
+
+/* Boost slate and gray variants too */
+.text-slate-400 { color: #475569 !important; }
+.text-slate-500 { color: #334155 !important; }
+.text-gray-400  { color: #4b5563 !important; }
+.text-gray-500  { color: #374151 !important; }
+
+/* Ensure font-mono labels remain dark and crisp */
+.font-mono { color: inherit; }

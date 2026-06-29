@@ -438,23 +438,6 @@ export default function Login({ onAuthSuccess }: LoginProps) {
                           </div>
                         </div>
 
-                        {/* Task Notification Alarm preference field */}
-                        <div className="p-4 border border-white/5 rounded-2xl bg-zinc-950/50 shadow-[inset_0_2px_4px_rgba(0,0,0,0.4)]" id="auth_notification_setting_box">
-                          <label htmlFor="auth_time_pref" className="block font-mono text-[9px] uppercase font-bold text-zinc-400 mb-2 flex items-center gap-1.5 tracking-wider">
-                            <Clock className="h-3.5 w-3.5 text-emerald-400" />
-                            Alert Time Preference
-                          </label>
-                          <input
-                            id="auth_time_pref"
-                            type="time"
-                            value={defaultNotificationTime}
-                            onChange={(e) => setDefaultNotificationTime(e.target.value)}
-                            className="w-full h-10 px-3 bg-white/5 border border-white/10 text-white text-xs font-mono rounded-xl focus:outline-none focus:border-emerald-500/40 focus:ring-1 focus:ring-emerald-500/30 transition-all shadow-sm"
-                          />
-                          <span className="text-[8px] font-mono text-zinc-500 block mt-1.5 leading-normal">
-                            Fires alarms automatically using our offline Service Worker.
-                          </span>
-                        </div>
 
                         {/* Submit Button */}
                         <motion.button

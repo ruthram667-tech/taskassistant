@@ -17,8 +17,9 @@ import {
   ChevronRight,
   Info
 } from "lucide-react";
-import { db, collection, addDoc, getDocs, deleteDoc, query, onSnapshot, orderBy } from "../lib/firebase";
+import { localDb } from "../db";
 import { MessageDraft } from "../types";
+import { generateLocalDraft } from "../utils/localDraftAI";
 
 interface DraftPanelProps {
   user: {
@@ -85,29 +86,18 @@ export default function DraftPanel({ user }: DraftPanelProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedHistoryItem, setSelectedHistoryItem] = useState<MessageDraft | null>(null);
 
-  // Subscription to drafts collection
+  // Load history from local Dexie IndexedDB
   useEffect(() => {
-    const q = query(
-      collection(db, "messages"),
-      orderBy("createdAt", "desc")
-    );
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const items: MessageDraft[] = [];
-      snapshot.forEach((doc: any) => {
-        const data = doc.data();
-        if (data.userId === user.uid) {
-          items.push({
-            id: doc.id,
-            ...data
-          });
-        }
-      });
-      // Sort manually just in case
-      items.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-      setHistory(items);
-    });
-
-    return () => unsubscribe();
+    const loadHistory = async () => {
+      try {
+        const items = await localDb.table('message_drafts').orderBy('createdAt').reverse().toArray();
+        setHistory(items);
+      } catch (e) {
+        // Table may not exist yet — it'll be created on first save
+        setHistory([]);
+      }
+    };
+    loadHistory();
   }, [user.uid]);
 
   // Handle template click
@@ -119,7 +109,7 @@ export default function DraftPanel({ user }: DraftPanelProps) {
     setError(null);
   };
 
-  // Generate Draft Call
+  // Generate Draft Call directly via Gemini API in the browser
   const handleGenerate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!prompt.trim()) {
@@ -133,29 +123,16 @@ export default function DraftPanel({ user }: DraftPanelProps) {
     setSelectedHistoryItem(null);
 
     try {
-      const response = await fetch("/api/gemini/draft-message", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          prompt,
-          channel,
-          recipientType,
-          tone,
-          additionalDetails
-        })
-      });
+      // Use our fully local, zero-API-key drafting engine
+      const data = generateLocalDraft({ prompt, channel, recipientType, tone, additionalDetails });
 
-      if (!response.ok) {
-        throw new Error("Failed to generate communication draft.");
-      }
+      if (!data.primary || !data.short || !data.formal) throw new Error("Draft generation failed.");
 
-      const data = await response.json();
       setGeneratedDrafts(data);
 
-      // Auto save to persistent Firestore/localStorage
-      await addDoc(collection(db, "messages"), {
+      // Save to Dexie IndexedDB
+      const newDraft = {
+        id: `draft_${Math.random().toString(36).substring(2, 11)}`,
         userId: user.uid,
         userPrompt: prompt,
         channel,
@@ -166,7 +143,14 @@ export default function DraftPanel({ user }: DraftPanelProps) {
         shortDraft: data.short,
         formalDraft: data.formal,
         createdAt: new Date().toISOString()
-      });
+      };
+
+      try {
+        await localDb.table('message_drafts').put(newDraft);
+        setHistory(prev => [newDraft as MessageDraft, ...prev]);
+      } catch (dbErr) {
+        console.warn("Could not save to history:", dbErr);
+      }
 
     } catch (err: any) {
       setError(err.message || "An error occurred during draft creation.");
@@ -175,11 +159,12 @@ export default function DraftPanel({ user }: DraftPanelProps) {
     }
   };
 
-  // Delete draft from history
+  // Delete draft from local Dexie DB
   const handleDeleteHistory = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
     try {
-      await deleteDoc({ path: "messages", id } as any);
+      await localDb.table('message_drafts').delete(id);
+      setHistory(prev => prev.filter(item => item.id !== id));
       if (selectedHistoryItem?.id === id) {
         setSelectedHistoryItem(null);
         setGeneratedDrafts(null);
@@ -394,7 +379,7 @@ export default function DraftPanel({ user }: DraftPanelProps) {
                 id="generate_draft_btn"
               >
                 <Sparkles className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
-                {loading ? "Composing Communication..." : "Draft High-Quality Content"}
+                {loading ? "Generating Draft..." : "Draft High-Quality Content"}
               </button>
             </form>
           </div>
