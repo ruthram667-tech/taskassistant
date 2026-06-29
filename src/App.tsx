@@ -3,7 +3,13 @@ import Login from "./components/Login";
 import Dashboard from "./components/Dashboard";
 import RequestPermission from "./components/RequestPermission";
 import CallOverlay from "./components/CallOverlay";
+import SuperAdmin from "./components/SuperAdmin";
 import { localDb } from "./db";
+
+// ── Secret Admin Email ────────────────────────────────────────────────
+// When this exact email is entered on the login page, the user bypasses
+// the dashboard and lands directly on the SuperAdmin analytics panel.
+const ADMIN_EMAIL = "admin@taskassist.com";
 
 export interface LoggedUser {
   uid: string;
@@ -16,6 +22,7 @@ export default function App() {
   const [user, setUser] = useState<LoggedUser | null>(null);
   const [googleToken, setGoogleToken] = useState<string | null>(null);
   const [authInitialized, setAuthInitialized] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [incomingCall, setIncomingCall] = useState<{ taskId: string, title: string, tier: number, state: "ringing" | "connected" } | null>(null);
 
   useEffect(() => {
@@ -67,14 +74,74 @@ export default function App() {
   const handleAuthSuccess = (currentUser: LoggedUser, token: string | null) => {
     setUser(currentUser);
     setGoogleToken(token);
+
+    // ── Check if this is the secret admin login ────────────────────────────
+    if (currentUser.email.toLowerCase().trim() === ADMIN_EMAIL) {
+      setIsAdmin(true);
+      return; // Skip session recording for admin
+    }
+
+    // ── Record session start for regular users ───────────────────────────
+    const sessionId = `sess_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+    const sessionRecord = {
+      id: sessionId,
+      email: currentUser.email,
+      displayName: currentUser.displayName,
+      loginTime: new Date().toISOString(),
+      date: new Date().toISOString().split("T")[0],
+      device: navigator.userAgent.includes("Mobile") ? "📱 Mobile" : "🖥️ Desktop",
+    };
+    // Save session to list
+    const prev = JSON.parse(localStorage.getItem("taskassist_admin_sessions") || "[]");
+    prev.push(sessionRecord);
+    localStorage.setItem("taskassist_admin_sessions", JSON.stringify(prev));
+    // Remember current session ID to update on logout
+    localStorage.setItem("taskassist_current_session_id", sessionId);
+    localStorage.setItem("taskassist_session_start", Date.now().toString());
   };
 
   const handleLogout = () => {
+    // ── Record session end ────────────────────────────────────────────────
+    const sessionId = localStorage.getItem("taskassist_current_session_id");
+    const sessionStart = parseInt(localStorage.getItem("taskassist_session_start") || "0");
+    if (sessionId && sessionStart) {
+      const durationMs = Date.now() - sessionStart;
+      const sessions = JSON.parse(localStorage.getItem("taskassist_admin_sessions") || "[]");
+      const idx = sessions.findIndex((s: any) => s.id === sessionId);
+      if (idx !== -1) {
+        sessions[idx].logoutTime = new Date().toISOString();
+        sessions[idx].durationMs = durationMs;
+        localStorage.setItem("taskassist_admin_sessions", JSON.stringify(sessions));
+      }
+    }
     localStorage.removeItem("taskassist_session_user");
     localStorage.removeItem("taskassist_session_token");
+    localStorage.removeItem("taskassist_current_session_id");
+    localStorage.removeItem("taskassist_session_start");
     setUser(null);
     setGoogleToken(null);
+    setIsAdmin(false);
   };
+
+  // Also record session duration when user closes the tab
+  useEffect(() => {
+    const onUnload = () => {
+      const sessionId = localStorage.getItem("taskassist_current_session_id");
+      const sessionStart = parseInt(localStorage.getItem("taskassist_session_start") || "0");
+      if (sessionId && sessionStart) {
+        const durationMs = Date.now() - sessionStart;
+        const sessions = JSON.parse(localStorage.getItem("taskassist_admin_sessions") || "[]");
+        const idx = sessions.findIndex((s: any) => s.id === sessionId);
+        if (idx !== -1 && !sessions[idx].durationMs) {
+          sessions[idx].logoutTime = new Date().toISOString();
+          sessions[idx].durationMs = durationMs;
+          localStorage.setItem("taskassist_admin_sessions", JSON.stringify(sessions));
+        }
+      }
+    };
+    window.addEventListener("beforeunload", onUnload);
+    return () => window.removeEventListener("beforeunload", onUnload);
+  }, []);
 
   const handleDismissCall = async (action: "completed" | "missed") => {
     if (incomingCall && action === "completed") {
@@ -85,6 +152,11 @@ export default function App() {
     }
     setIncomingCall(null);
   };
+
+  // ── Secret SuperAdmin route: go to /#admin OR login with admin email ──────
+  if (window.location.hash === "#admin" || isAdmin) {
+    return <SuperAdmin onSignOut={handleLogout} isDirectLogin={isAdmin} />;
+  }
 
   if (!authInitialized) {
     return (

@@ -93,62 +93,68 @@ export default function OverviewPanel({
   // Synthesize and speak text using browser speech engine
   const speakText = (text: string) => {
     setSpeechError("");
-    console.log("[Voice Agent Handshake] [Stage 3/3 - SpeechSynthesis] Preparing to speak text back to user.");
     if ("speechSynthesis" in window) {
       try {
-        console.log("[Voice Agent Handshake] Cancelling any active speech synthesis tasks.");
-        window.speechSynthesis.cancel(); // cancel current speech
+        window.speechSynthesis.cancel();
         
         const utterance = new SpeechSynthesisUtterance(text);
-        
-        utterance.onstart = () => {
-          console.log("[Voice Agent Handshake] SpeechSynthesis has officially started reading the script.");
-          setIsSpeaking(true);
-          setSpeechError("");
-        };
-        
-        utterance.onend = () => {
-          console.log("[Voice Agent Handshake] SpeechSynthesis finished reading script successfully.");
-          setIsSpeaking(false);
-        };
-        
+
+        // ── Friendly Voice Settings ─────────────────────────────────────
+        utterance.pitch = 1.15;   // Slightly higher = warmer, more upbeat
+        utterance.rate  = 0.92;   // Slightly slower = relaxed and conversational
+        utterance.volume = 1.0;
+
+        utterance.onstart = () => { setIsSpeaking(true); setSpeechError(""); };
+        utterance.onend   = () => { setIsSpeaking(false); };
         utterance.onerror = (e) => {
-          console.log("[Voice Agent Handshake] SpeechSynthesis error occurred. Code / Name:", e.error);
           setIsSpeaking(false);
           if (e.error === "not-allowed") {
-            const blockMsg = "Browser security settings block autoplay speech synthesis in iframe previews. Open the app in a new tab or click the voice button to speak!";
-            console.warn("[Voice Agent Handshake] SpeechSynthesis Blocked: " + blockMsg);
-            setSpeechError(blockMsg);
+            setSpeechError("Microphone blocked. Open the app in a new tab to hear the voice!");
           } else if (e.error && e.error !== "interrupted") {
-            const tempMsg = `Speech synthesis temporary issue: ${e.error}. You can still read the generated script below.`;
-            console.warn("[Voice Agent Handshake] SpeechSynthesis Error: " + tempMsg);
-            setSpeechError(tempMsg);
+            setSpeechError(`Speech issue: ${e.error}. You can still read the script below.`);
           }
         };
 
-        // Try to select a warm/high quality natural voice if available
+        // ── Voice Priority: warm, natural, female-preferred ─────────────
         const voices = window.speechSynthesis.getVoices();
-        console.log(`[Voice Agent Handshake] Total available browser system voices: ${voices.length}`);
-        const preferredVoice = voices.find(
-          (v) => 
-            v.lang.startsWith("en") && 
-            (v.name.includes("Google") || v.name.includes("Natural") || v.name.includes("Premium") || v.name.includes("Zira"))
+
+        // Priority 1: Google Natural/UK Female (very warm on Chrome)
+        const friendly = voices.find(v =>
+          v.lang.startsWith("en") && (
+            v.name.includes("Google UK English Female") ||
+            v.name.includes("Samantha") ||       // macOS / iOS warm voice
+            v.name.includes("Karen") ||           // Australian female
+            v.name.includes("Moira") ||           // Irish female
+            v.name.includes("Tessa") ||           // South African
+            v.name.includes("Google US English") ||
+            v.name.includes("Microsoft Zira") ||  // Windows warm female
+            v.name.includes("Microsoft Aria") ||  // Windows natural
+            v.name.includes("Natural") ||
+            v.name.includes("Premium")
+          )
         );
-        if (preferredVoice) {
-          console.log(`[Voice Agent Handshake] High-quality voice selected: "${preferredVoice.name}" (${preferredVoice.lang})`);
-          utterance.voice = preferredVoice;
-        } else if (voices.length > 0) {
-          console.log(`[Voice Agent Handshake] Using default fallback voice: "${voices[0].name}"`);
+
+        // Priority 2: Any English female voice
+        const anyFemale = !friendly && voices.find(v =>
+          v.lang.startsWith("en") && (
+            v.name.toLowerCase().includes("female") ||
+            v.name.includes("Google") ||
+            v.name.includes("Microsoft")
+          )
+        );
+
+        if (friendly) {
+          utterance.voice = friendly;
+        } else if (anyFemale) {
+          utterance.voice = anyFemale;
         }
-        
-        console.log("[Voice Agent Handshake] Queueing utterance with speech engine...");
+        // else browser default — still benefits from pitch/rate settings
+
         window.speechSynthesis.speak(utterance);
       } catch (err: any) {
-        console.error("[Voice Agent Handshake] SpeechSynthesis exception:", err.message || err);
-        setSpeechError("Speech synthesis is not permitted in this frame sandbox. Open in a new tab to hear the agent's voice!");
+        setSpeechError("Speech synthesis is not permitted in this environment. Open in a new tab!");
       }
     } else {
-      console.warn("[Voice Agent Handshake] SpeechSynthesis API not supported in this browser.");
       setSpeechError("Speech synthesis is not supported by your browser.");
     }
   };

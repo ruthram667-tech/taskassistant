@@ -355,149 +355,69 @@ export default function Login({ onAuthSuccess }: LoginProps) {
                     </p>
                   </div>
 
-                  {/* Segmented Tab Selector */}
-                  <div className="flex bg-zinc-950/80 p-1 rounded-2xl border border-white/5 shadow-inner" id="segmented_tab_bar">
-                    <button
-                      type="button"
-                      onClick={() => setActiveTab("credentials")}
-                      className={`flex-1 py-2 text-xs font-semibold rounded-xl transition-all duration-300 flex items-center justify-center gap-1.5 cursor-pointer ${
-                        activeTab === "credentials" 
-                          ? "bg-white/10 text-white shadow-[0_1px_3px_rgba(0,0,0,0.3)] border border-white/5" 
-                          : "text-zinc-400 hover:text-white"
-                      }`}
+                  {/* Credentials Form — shown directly, no tabs */}
+                  <motion.form 
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: 10 }}
+                    transition={{ duration: 0.2 }}
+                    onSubmit={handleCustomFormSubmit} 
+                    className="space-y-4"
+                    key="credentials_form_tab"
+                  >
+                    {/* Name Field */}
+                    <div className="space-y-1">
+                      <label htmlFor="name_input_field" className="block font-mono text-[9px] uppercase font-bold text-zinc-400 tracking-wider">
+                        Full Name
+                      </label>
+                      <div className="relative">
+                        <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-500">
+                          <User className="h-4 w-4" />
+                        </span>
+                        <input
+                          id="name_input_field"
+                          type="text"
+                          required
+                          placeholder="John Doe"
+                          value={nameInput}
+                          onChange={(e) => setNameInput(e.target.value)}
+                          className="w-full h-11 pl-9 pr-3 bg-white/5 border border-white/10 focus:border-emerald-500/40 text-white text-xs rounded-xl focus:outline-none focus:ring-1 focus:ring-emerald-500/30 transition-all shadow-[inset_0_2px_4px_rgba(0,0,0,0.2)] placeholder-zinc-500"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Email Field */}
+                    <div className="space-y-1">
+                      <label htmlFor="email_input_field" className="block font-mono text-[9px] uppercase font-bold text-zinc-400 tracking-wider">
+                        Email Address
+                      </label>
+                      <div className="relative">
+                        <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-500">
+                          <Mail className="h-4 w-4" />
+                        </span>
+                        <input
+                          id="email_input_field"
+                          type="email"
+                          required
+                          placeholder="john@example.com"
+                          value={emailInput}
+                          onChange={(e) => setEmailInput(e.target.value)}
+                          className="w-full h-11 pl-9 pr-3 bg-white/5 border border-white/10 focus:border-emerald-500/40 text-white text-xs rounded-xl focus:outline-none focus:ring-1 focus:ring-emerald-500/30 transition-all shadow-[inset_0_2px_4px_rgba(0,0,0,0.2)] placeholder-zinc-500"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Submit Button */}
+                    <motion.button
+                      whileHover={{ scale: 1.02, y: -1 }}
+                      whileTap={{ scale: 0.98 }}
+                      type="submit"
+                      className="w-full h-11 bg-gradient-to-r from-emerald-500 to-teal-400 text-zinc-950 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-[0_4px_20px_rgba(16,185,129,0.25)] hover:shadow-[0_4px_25px_rgba(16,185,129,0.4)] mt-2"
+                      id="custom_form_submit_btn"
                     >
-                      <User className="h-3.5 w-3.5" />
-                      Custom Operator
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setActiveTab("sandbox")}
-                      className={`flex-1 py-2 text-xs font-semibold rounded-xl transition-all duration-300 flex items-center justify-center gap-1.5 cursor-pointer ${
-                        activeTab === "sandbox" 
-                          ? "bg-white/10 text-white shadow-[0_1px_3px_rgba(0,0,0,0.3)] border border-white/5" 
-                          : "text-zinc-400 hover:text-white"
-                      }`}
-                    >
-                      <Fingerprint className="h-3.5 w-3.5" />
-                      One-Click Sandbox
-                    </button>
-                  </div>
-
-                  <AnimatePresence mode="wait">
-                    {activeTab === "credentials" ? (
-                      
-                      /* CUSTOM CREDENTIALS INPUT FORM */
-                      <motion.form 
-                        initial={{ opacity: 0, x: -10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: 10 }}
-                        transition={{ duration: 0.2 }}
-                        onSubmit={handleCustomFormSubmit} 
-                        className="space-y-4"
-                        key="credentials_form_tab"
-                      >
-                        {/* Name Field */}
-                        <div className="space-y-1">
-                          <label htmlFor="name_input_field" className="block font-mono text-[9px] uppercase font-bold text-zinc-400 tracking-wider">
-                            Full Name
-                          </label>
-                          <div className="relative">
-                            <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-500">
-                              <User className="h-4 w-4" />
-                            </span>
-                            <input
-                              id="name_input_field"
-                              type="text"
-                              required
-                              placeholder="John Doe"
-                              value={nameInput}
-                              onChange={(e) => setNameInput(e.target.value)}
-                              className="w-full h-11 pl-9 pr-3 bg-white/5 border border-white/10 focus:border-emerald-500/40 text-white text-xs rounded-xl focus:outline-none focus:ring-1 focus:ring-emerald-500/30 transition-all shadow-[inset_0_2px_4px_rgba(0,0,0,0.2)] placeholder-zinc-500"
-                            />
-                          </div>
-                        </div>
-
-                        {/* Email Field */}
-                        <div className="space-y-1">
-                          <label htmlFor="email_input_field" className="block font-mono text-[9px] uppercase font-bold text-zinc-400 tracking-wider">
-                            Email Address
-                          </label>
-                          <div className="relative">
-                            <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-500">
-                              <Mail className="h-4 w-4" />
-                            </span>
-                            <input
-                              id="email_input_field"
-                              type="email"
-                              required
-                              placeholder="john@example.com"
-                              value={emailInput}
-                              onChange={(e) => setEmailInput(e.target.value)}
-                              className="w-full h-11 pl-9 pr-3 bg-white/5 border border-white/10 focus:border-emerald-500/40 text-white text-xs rounded-xl focus:outline-none focus:ring-1 focus:ring-emerald-500/30 transition-all shadow-[inset_0_2px_4px_rgba(0,0,0,0.2)] placeholder-zinc-500"
-                            />
-                          </div>
-                        </div>
-
-
-                        {/* Submit Button */}
-                        <motion.button
-                          whileHover={{ scale: 1.02, y: -1 }}
-                          whileTap={{ scale: 0.98 }}
-                          type="submit"
-                          className="w-full h-11 bg-gradient-to-r from-emerald-500 to-teal-400 text-zinc-950 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-[0_4px_20px_rgba(16,185,129,0.25)] hover:shadow-[0_4px_25px_rgba(16,185,129,0.4)] mt-2"
-                          id="custom_form_submit_btn"
-                        >
-                          Authenticate Operator <ArrowRight className="h-3.5 w-3.5" />
-                        </motion.button>
-                      </motion.form>
-                    ) : (
-                      
-                      /* ONE-CLICK SANDBOX SELECTOR FOR QUICK TESTING */
-                      <motion.div 
-                        initial={{ opacity: 0, x: 10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: -10 }}
-                        transition={{ duration: 0.2 }}
-                        className="space-y-3"
-                        key="sandbox_selector_tab"
-                      >
-                        <div className="space-y-1 mb-2">
-                          <span className="text-[9px] font-mono font-bold text-zinc-400 uppercase tracking-wider block">Available Sandbox Profiles</span>
-                          <p className="text-[10px] text-zinc-500 leading-normal">Instantly boot into a pre-configured developer profile with standard tasks seeded.</p>
-                        </div>
-
-                        {[
-                          { name: "John Operator", email: "john132@mail.com", role: "Principal Engineer", avatarColor: "from-blue-500 to-indigo-400" },
-                          { name: "Sarah Specialist", email: "sarah_task@gmail.com", role: "Product Coordinator", avatarColor: "from-purple-500 to-pink-500" },
-                          { name: "Alex Admin", email: "alex_workspace@admin.com", role: "System Administrator", avatarColor: "from-emerald-500 to-teal-400" }
-                        ].map((profile) => (
-                          <motion.button
-                            key={profile.email}
-                            whileHover={{ scale: 1.015, x: 2 }}
-                            whileTap={{ scale: 0.985 }}
-                            onClick={() => handleSandboxLogin(profile.email, profile.name)}
-                            className="w-full p-3.5 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 rounded-2xl text-left flex items-center justify-between transition-all cursor-pointer group shadow-[0_2px_4px_rgba(0,0,0,0.1)]"
-                          >
-                            <div className="flex items-center gap-3">
-                              <div className={`h-8 w-8 rounded-lg bg-gradient-to-tr ${profile.avatarColor} text-zinc-950 font-bold text-xs flex items-center justify-center shrink-0`}>
-                                {profile.name.charAt(0)}
-                              </div>
-                              <div className="flex flex-col">
-                                <span className="text-xs font-bold text-white group-hover:text-emerald-400 transition-colors">{profile.name}</span>
-                                <span className="text-[10px] text-zinc-400 font-mono mt-0.5">{profile.email}</span>
-                              </div>
-                            </div>
-                            <div className="flex flex-col items-end text-right">
-                              <span className="text-[8px] font-mono text-zinc-500 uppercase tracking-widest">{profile.role}</span>
-                              <span className="text-[10px] text-emerald-400 font-bold opacity-0 group-hover:opacity-100 transition-opacity font-mono mt-1 flex items-center gap-1">
-                                BOOT <ArrowRight className="h-3 w-3" />
-                              </span>
-                            </div>
-                          </motion.button>
-                        ))}
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
+                      Authenticate Operator <ArrowRight className="h-3.5 w-3.5" />
+                    </motion.button>
+                  </motion.form>
                 </motion.div>
               )}
             </AnimatePresence>
