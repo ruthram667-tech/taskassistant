@@ -153,133 +153,157 @@ export default function OverviewPanel({
     }
   };
 
-  // Triggers the local voice assistant to compile the personalized report and speak it
+  // ── MENTOR AI CONVERSATION ENGINE ─────────────────────────────────────────────
   const generateVoiceBrief = async (userQuery?: string) => {
     setIsGenerating(true);
     const query = userQuery || "";
-    if (query) {
-      setSpokenQuery(query);
-      console.log(`[Vocal Assist] Offline Query captured: "${query}". Processing locally...`);
-    } else {
-      setSpokenQuery("");
-      console.log("[Vocal Assist] Initiating a general status briefing request locally.");
-    }
+    if (query) setSpokenQuery(query);
+    else setSpokenQuery("");
 
     try {
-      // Simulate a small, elegant generation delay to make it feel natural and responsive
-      await new Promise((resolve) => setTimeout(resolve, 650));
+      await new Promise((resolve) => setTimeout(resolve, 500));
 
-      // 1. Detect current time and respond with contextual greetings
       const hour = new Date().getHours();
+      const firstName = userName?.split(" ")[0] || "friend";
+
+      // Time-based greetings with personality
       let timeGreeting = "";
+      let energyBoost = "";
       if (hour >= 5 && hour < 12) {
-        timeGreeting = "Good morning! How's your day starting?";
-      } else if (hour >= 12 && hour < 17) {
-        timeGreeting = "Hey there! How's it going?";
-      } else if (hour >= 17 && hour < 23) {
-        timeGreeting = "Good evening buddy! How was your day?";
+        timeGreeting = `Good morning, ${firstName}!`;
+        energyBoost = "Mornings are where champions are made. Let's start strong today.";
+      } else if (hour >= 12 && hour < 15) {
+        timeGreeting = `Hey ${firstName}, good afternoon!`;
+        energyBoost = "You're in the heart of the day — perfect time to tackle something meaningful.";
+      } else if (hour >= 15 && hour < 18) {
+        timeGreeting = `Hey ${firstName}!`;
+        energyBoost = "The afternoon push is real. A little focus now goes a long way before the day winds down.";
+      } else if (hour >= 18 && hour < 23) {
+        timeGreeting = `Good evening, ${firstName}!`;
+        energyBoost = "Hope your day has been productive. Let's wrap things up on a high note.";
       } else {
-        timeGreeting = "Hey, burning the midnight oil?";
+        timeGreeting = `Hey ${firstName}, still up?`;
+        energyBoost = "Late nights show dedication — just make sure you're resting enough too. Your best work comes from a rested mind.";
       }
+
+      const highPriorityList = tasks.filter(t => t.status === "pending" && t.priority === "high");
+      const overdueList = tasks.filter(t => t.status === "pending" && checkIsOverdue(t.dueDate, t.dueTime));
+      const completedList = tasks.filter(t => t.status === "completed");
+      const pendingList = tasks.filter(t => t.status === "pending");
+
+      // Motivational coaching lines
+      const coachingLines = [
+        `Remember — every task you complete is a step toward the version of yourself you're building.`,
+        `Focus on progress, not perfection. Small wins compound into big results.`,
+        `You don't have to be perfect. You just have to keep moving forward.`,
+        `The hardest part is always starting. Once you begin, momentum takes over.`,
+        `Discipline is just doing the right thing even when you don't feel like it.`,
+        `Each completed task is proof that you are capable of more than you think.`,
+      ];
+      const coaching = coachingLines[Math.floor(Math.random() * coachingLines.length)];
 
       let script = "";
       let whatsapp = "";
-
       const queryLower = query.toLowerCase().trim();
-      const highPriorityTasksList = tasks.filter(t => t.status === "pending" && t.priority === "high");
-      const overdueTasksList = tasks.filter(t => t.status === "pending" && checkIsOverdue(t.dueDate, t.dueTime));
-      const completedTasksList = tasks.filter(t => t.status === "completed");
-      const pendingTasksList = tasks.filter(t => t.status === "pending");
 
-      // Check if user says "hi", "hey", or similar
-      const isGreetingQuery = queryLower && (
-        queryLower === "hi" || 
-        queryLower === "hey" || 
-        queryLower === "hello" || 
-        queryLower === "yo" || 
-        queryLower.startsWith("hi ") || 
-        queryLower.startsWith("hey ") || 
-        queryLower.startsWith("hello ")
-      );
+      const isGreeting = queryLower && ["hi","hey","hello","yo","what's up","sup","good morning","good evening"].some(g => queryLower.startsWith(g));
+      const asksOverdue = queryLower.includes("overdue") || queryLower.includes("late") || queryLower.includes("miss");
+      const asksUrgent = queryLower.includes("urgent") || queryLower.includes("priority") || queryLower.includes("high") || queryLower.includes("important");
+      const asksDone = queryLower.includes("done") || queryLower.includes("complet") || queryLower.includes("finish") || queryLower.includes("progress");
+      const asksAdvice = queryLower.includes("advice") || queryLower.includes("help") || queryLower.includes("what should") || queryLower.includes("suggest") || queryLower.includes("guide") || queryLower.includes("tip");
+      const asksMotivation = queryLower.includes("motivat") || queryLower.includes("inspir") || queryLower.includes("push") || queryLower.includes("energy") || queryLower.includes("encourage");
 
-      if (isGreetingQuery) {
-        script = `Hi buddy! How was your day? I am your offline voice assistant. Currently, we have ${pendingTasks} pending tasks to finish, and you've achieved a completion rate of ${completionRate} percent today. Let me know if you would like me to brief you on overdue or high-priority items!`;
-        whatsapp = `🎙️ *TASK ASSIST VOCAL BRIEF* \n\n👤 *Operator*: ${userName}\n👋 Hi buddy! Welcome back.\n📈 *Pending*: ${pendingTasks} tasks\n🏆 *Completed*: ${completedTasks} tasks (${completionRate}%)`;
-      } else if (queryLower) {
-        if (queryLower.includes("overdue") || queryLower.includes("late") || queryLower.includes("delay")) {
-          if (overdueTasksList.length > 0) {
-            const titles = overdueTasksList.map(t => `"${t.title}"`).join(", ");
-            script = `Hey ${userName}, I checked your records. We currently have ${overdueTasksList.length} overdue tasks that need your urgent attention. They are: ${titles}. Let's try to complete these first!`;
-            whatsapp = `⚠️ *TASK ASSIST URGENT BRIEF*\n\n👤 *Operator*: ${userName}\n🚨 *Overdue Items*: ${overdueTasksList.length} tasks\n\n*Tasks:* \n${overdueTasksList.map(t => `• ${t.title} (${t.dueTime || "No time"})`).join("\n")}`;
-          } else {
-            script = `Good news, ${userName}! None of your pending tasks are overdue right now. Your timeline looks perfectly on track!`;
-            whatsapp = `✅ *TASK ASSIST STATUS*\n\n👤 *Operator*: ${userName}\n✨ All clear! You have no overdue tasks at the moment. Great job!`;
-          }
-        } else if (queryLower.includes("urgent") || queryLower.includes("priority") || queryLower.includes("high") || queryLower.includes("important")) {
-          if (highPriorityTasksList.length > 0) {
-            const titles = highPriorityTasksList.map(t => `"${t.title}"`).join(", ");
-            script = `Alright ${userName}, focusing on high-priority items. You have ${highPriorityTasksList.length} high-priority tasks pending. They are: ${titles}. Concentrating on these will deliver the highest impact today.`;
-            whatsapp = `🔥 *TASK ASSIST PRIORITIES*\n\n👤 *Operator*: ${userName}\n⭐ *High-Priority Pending*: ${highPriorityTasksList.length} tasks\n\n*Items:* \n${highPriorityTasksList.map(t => `• ${t.title} (${t.dueDate})`).join("\n")}`;
-          } else {
-            script = `Hey ${userName}, you don't have any pending high-priority tasks right now. Feel free to focus on your general list or take a well-deserved breather!`;
-            whatsapp = `✨ *TASK ASSIST STATUS*\n\n👤 *Operator*: ${userName}\n⭐ No urgent high-priority tasks are currently pending. Have a productive day!`;
-          }
-        } else if (queryLower.includes("completed") || queryLower.includes("done") || queryLower.includes("finish") || queryLower.includes("progress")) {
-          if (completedTasksList.length > 0) {
-            const titles = completedTasksList.map(t => `"${t.title}"`).slice(0, 5).join(", ");
-            const moreCount = completedTasksList.length > 5 ? ` and ${completedTasksList.length - 5} more` : "";
-            script = `Fantastic progress, ${userName}! You have completed a total of ${completedTasksList.length} tasks today, achieving a completion rate of ${completionRate} percent! Some of your completed items include: ${titles}${moreCount}. Keep this fantastic streak alive!`;
-            whatsapp = `🏆 *TASK ASSIST PROGRESS*\n\n👤 *Operator*: ${userName}\n📊 *Completion Rate*: ${completionRate}%\n✅ *Completed count*: ${completedTasksList.length}\n📝 *Pending count*: ${pendingTasks}\n\n*Recent Wins:* \n${completedTasksList.slice(0, 5).map(t => `• ${t.title}`).join("\n")}`;
-          } else {
-            script = `Hello ${userName}. You haven't completed any tasks in your active queue yet today. No worries—pick a quick win from your list, complete it, and let's get the ball rolling!`;
-            whatsapp = `📈 *TASK ASSIST PROGRESS*\n\n👤 *Operator*: ${userName}\n📊 No completed tasks yet today. Select a pending item and let's make a start!`;
-          }
-        } else if (queryLower.includes("alarm") || queryLower.includes("schedule") || queryLower.includes("snooze") || queryLower.includes("time") || queryLower.includes("notification")) {
-          script = `Excellent question, ${userName}! Our task alarm engine utilizes a client-side Service Worker. When you schedule an alarm, the worker scans your Dexie database every 60 seconds. If an alarm matches, it fires a notification with Snooze and Done buttons, and plays a persistent alarm tone even if you close the tab!`;
-          whatsapp = `⏰ *TASK ASSIST ALARM CONFIG*\n\n👤 *Operator*: ${userName}\n⚙️ Service Worker alarm engine: Active\n⏱️ Scan interval: 60s\n🔔 Features: Done & Snooze controls, persistent audio alarm.`;
+      if (!queryLower || isGreeting) {
+        // AUTO GREETING — Full conversational status brief
+        const overdueNote = overdueList.length > 0
+          ? `I do need to flag something important though — you have ${overdueList.length} overdue ${overdueList.length === 1 ? "task" : "tasks"} that need your attention. Your top overdue item is "${overdueList[0].title}". Let's make sure we handle that today.`
+          : `And the good news is — you have zero overdue tasks. Your timeline is spotless. That's real discipline!`;
+
+        const priorityNote = highPriorityList.length > 0
+          ? `Your most critical task right now is "${highPriorityList[0].title}". I'd recommend starting with that — high-priority items done early give you mental clarity for the rest of the day.`
+          : `You have no high-priority tasks flagged right now, so you have the freedom to choose your own rhythm today.`;
+
+        const progressNote = completionRate >= 80
+          ? `You're absolutely crushing it — ${completionRate} percent completion rate. I'm genuinely impressed. Keep this energy up!`
+          : completionRate >= 50
+          ? `You're at ${completionRate} percent for today. Solid progress! But there's still more to unlock. I believe in you.`
+          : completedList.length === 0
+          ? `We haven't checked off anything yet today, ${firstName}. That's okay — every great day starts with the first tick. Pick one task, just one, and let's get the momentum rolling.`
+          : `You're at ${completionRate} percent completion. ${pendingTasks} tasks are still waiting. Let's chip away at them together.`;
+
+        script = `${timeGreeting} How was your day? I am your offline voice assistant — your personal task guide. ${energyBoost} Here's your current status: you have ${pendingTasks} pending ${pendingTasks === 1 ? "task" : "tasks"} and ${completedList.length} completed. ${progressNote} ${overdueNote} ${priorityNote} ${coaching} I'm here whenever you need me — just tap the mic and talk to me!`;
+
+        whatsapp = `🎙️ *TASK ASSIST DAILY BRIEF*\n\n👤 *Operator*: ${userName}\n📅 *Date*: ${new Date().toLocaleDateString()}\n📊 *Completion*: ${completionRate}% (${completedList.length}/${tasks.length})\n📝 *Pending*: ${pendingTasks}\n⚠️ *Overdue*: ${overdueList.length}\n⭐ *Top Priority*: ${highPriorityList[0]?.title || "None"}\n\n💬 "${coaching}"`;
+
+      } else if (asksAdvice) {
+        // Personalized guidance based on current task state
+        if (overdueList.length > 0) {
+          script = `Great question, ${firstName}. Here is my honest guidance for you right now: your most important move is to clear your ${overdueList.length} overdue ${overdueList.length === 1 ? "task" : "tasks"} first. Overdue items are like unpaid debts — they silently drain your mental energy. Start with "${overdueList[0].title}". Even 30 minutes of focused work on it will make you feel so much lighter. After that, tackle your high priority items. Remember — you don't have to do everything at once. Just the next right thing.`;
+        } else if (highPriorityList.length > 0) {
+          script = `Here is my best advice for you today, ${firstName}: your high-priority tasks deserve your freshest energy. Right now your most important item is "${highPriorityList[0].title}". Block out 45 minutes, silence your notifications, and go deep on that one. Once it's done, everything else will feel easier. Trust the process — focus creates momentum, and momentum creates results.`;
+        } else if (pendingList.length > 0) {
+          script = `You're in great shape, ${firstName} — no overdue tasks, no critical emergencies. My advice? Use this calm window wisely. Pick the pending task that will create the most value for tomorrow-you and do it now. Future you will be grateful. You have ${pendingList.length} tasks waiting — start with the one that's been sitting longest on your list.`;
         } else {
-          // General matching search across task titles
-          const matched = tasks.filter(t => t.title.toLowerCase().includes(queryLower));
-          if (matched.length > 0) {
-            const titles = matched.map(t => `"${t.title}"`).slice(0, 4).join(", ");
-            script = `Hey ${userName}, I found ${matched.length} tasks matching your query "${query}". They are: ${titles}. Let me know if you would like to hear about something else!`;
-            whatsapp = `🔍 *TASK ASSIST SEARCH*\n\n👤 *Operator*: ${userName}\n🎯 *Matches for "${query}"*: ${matched.length}\n\n*Tasks:* \n${matched.slice(0, 5).map(t => `• ${t.title} [${t.priority}]`).join("\n")}`;
-          } else {
-            script = `Hello ${userName}, I couldn't find any direct match for "${query}" in your task records. However, we have ${pendingTasks} pending tasks in total, with ${highPriorityTasksList.length} high priority items waiting. What would you like to focus on?`;
-            whatsapp = `ℹ *TASK ASSIST SEARCH*\n\n👤 *Operator*: ${userName}\n❓ No direct matches for "${query}".\n📊 Total Pending: ${pendingTasks}\n⭐ High Priority: ${highPriorityTasksList.length}`;
-          }
+          script = `${firstName}, honestly? You're in an enviable position — a completely clear board! My advice is to use this space to plan ahead. What's coming next week? What can you set up now to make your future days easier? Great leaders aren't just reactive — they plan during the calm.`;
         }
+        whatsapp = `💡 *TASK ASSIST GUIDANCE*\n\n👤 *Operator*: ${userName}\n📝 *Pending*: ${pendingTasks}\n⚠️ *Overdue*: ${overdueList.length}\n⭐ *Priority Focus*: ${highPriorityList[0]?.title || "None"}\n\n🧭 Guidance delivered via Voice Assistant.`;
+
+      } else if (asksMotivation) {
+        const motivations = [
+          `${firstName}, let me be real with you. You showed up today — that alone puts you ahead of most people. You have ${pendingTasks} tasks waiting, and every single one is an opportunity to prove what you're made of. You didn't come this far to give up now. ${coaching} Let's get it done!`,
+          `Listen ${firstName} — motivation is a feeling, but discipline is a choice. You don't need to feel ready to start. Start anyway. Start small. Do the first 5 minutes. That's all. Once you begin, the energy will follow. You've got this, I promise you.`,
+          `${firstName}, I want you to remember something. Every completed task in your history was once just an item on a list — just like the ones waiting now. You've beaten every task before this. These ones are no different. The only question is when — and I think the answer is right now.`,
+        ];
+        script = motivations[Math.floor(Math.random() * motivations.length)];
+        whatsapp = `💪 *TASK ASSIST MOTIVATION*\n\n👤 *Operator*: ${userName}\n\n"${coaching}"`;
+
+      } else if (asksOverdue) {
+        if (overdueList.length > 0) {
+          const titles = overdueList.map(t => `"${t.title}"`).slice(0, 3).join(", ");
+          script = `${firstName}, I'm not going to sugarcoat this — you have ${overdueList.length} overdue ${overdueList.length === 1 ? "task" : "tasks"} and that needs your attention now. They are: ${titles}. Here's what I recommend: don't try to do them all at once. Pick the most important one and focus on it completely. Overdue tasks create anxiety, but action dissolves anxiety. Let's start with "${overdueList[0].title}" — right now, today. You can do this.`;
+        } else {
+          script = `${firstName}, I checked everything and you have absolutely zero overdue tasks. That is genuinely impressive! Your time management is on point. Keep this discipline going — it's the foundation of everything else you want to achieve.`;
+        }
+        whatsapp = `⚠️ *TASK ASSIST OVERDUE CHECK*\n\n👤 *Operator*: ${userName}\n🚨 *Overdue*: ${overdueList.length} ${overdueList.length === 0 ? "— All Clear! ✅" : "tasks"}\n\n${overdueList.map(t => `• ${t.title}`).join("\n")}`;
+
+      } else if (asksUrgent) {
+        if (highPriorityList.length > 0) {
+          const titles = highPriorityList.map(t => `"${t.title}"`).slice(0, 3).join(", ");
+          script = `${firstName}, let's talk priorities. You have ${highPriorityList.length} high-priority ${highPriorityList.length === 1 ? "task" : "tasks"} waiting: ${titles}. My strong recommendation — protect your best mental hours for these. Don't let low-value activities eat up the time that belongs to your most important work. High priority tasks are high priority for a reason. Let's honour that and get them done.`;
+        } else {
+          script = `Great news, ${firstName}! You have no high-priority tasks pending right now. This is your window to either get ahead on medium priority items, or to plan and organize what's coming next. Use this calm wisely — it's a gift!`;
+        }
+        whatsapp = `⭐ *TASK ASSIST PRIORITIES*\n\n👤 *Operator*: ${userName}\n🔥 *High Priority Pending*: ${highPriorityList.length}\n\n${highPriorityList.map(t => `• ${t.title}`).join("\n")}`;
+
+      } else if (asksDone) {
+        if (completedList.length > 0) {
+          script = `${firstName}, let me celebrate with you for a second. You have completed ${completedList.length} ${completedList.length === 1 ? "task" : "tasks"} — that's a ${completionRate} percent completion rate. That is real, tangible progress. Each one of those represents a decision you made to follow through. Be proud of that. Now, with ${pendingList.length} still pending, let's keep that momentum going. What do you want to tackle next?`;
+        } else {
+          script = `${firstName}, you haven't checked off any tasks yet today — and that is completely okay. Every journey starts somewhere. My challenge to you: pick the smallest, quickest task on your list right now and complete it. That first tick of the day is magic. It changes your mindset from "I need to do things" to "I am someone who gets things done." Go for it!`;
+        }
+        whatsapp = `🏆 *TASK ASSIST PROGRESS*\n\n👤 *Operator*: ${userName}\n📊 *Rate*: ${completionRate}%\n✅ *Done*: ${completedList.length}\n📝 *Remaining*: ${pendingList.length}`;
+
       } else {
-        // Standard full conversational status brief
-        const overdueSentence = overdueTasks > 0 
-          ? `I see you've got ${overdueTasks} overdue tasks waiting. We should definitely tackle those as soon as possible to keep your timeline clean.` 
-          : "Fantastic! You have no overdue tasks at all, keeping your timeline perfectly clear!";
-        
-        const prioritySentence = highPriorityTasksList.length > 0
-          ? `Your biggest high priority item is "${highPriorityTasksList[0].title}".`
-          : "You don't have any pending high priority items flagged right now.";
-
-        const completionFeedback = completedTasks > 0
-          ? `You've crushed ${completedTasks} tasks today—nice work! But there are ${pendingTasks} still on the board.`
-          : `We haven't checked off any tasks yet today, but we have ${pendingTasks} waiting in the queue. Let's make a start!`;
-
-        script = `${timeGreeting} ${userName}! Welcome back to Task Assist. Here is your current offline workspace status: We have ${pendingTasks} pending tasks, and you've achieved a completion rate of ${completionRate} percent with ${completedTasks} completed items. ${completionFeedback} ${overdueSentence} ${prioritySentence} Want to focus on the deadline stuff first or knock out some quick wins?`;
-        
-        whatsapp = `📋 *TASK ASSIST DAILY BRIEF*\n\n👤 *Operator*: ${userName}\n📅 *Date*: ${new Date().toLocaleDateString()}\n📊 *Progress*: ${completionRate}% completed (${completedTasks}/${totalTasks})\n📝 *Pending*: ${pendingTasks}\n⚠️ *Overdue*: ${overdueTasks}\n⭐ *Top Priority*: ${highPriorityTasksList[0]?.title || "None"}`;
+        // Smart keyword task search + fallback guide response
+        const matched = tasks.filter(t => t.title.toLowerCase().includes(queryLower) || t.description?.toLowerCase().includes(queryLower));
+        if (matched.length > 0) {
+          const titles = matched.map(t => `"${t.title}"`).slice(0, 3).join(", ");
+          script = `${firstName}, I found ${matched.length} ${matched.length === 1 ? "task" : "tasks"} matching what you asked about: ${titles}. ${matched[0].status === "pending" ? `"${matched[0].title}" is still pending${checkIsOverdue(matched[0].dueDate, matched[0].dueTime) ? " and it's overdue — let's prioritize this right away!" : ". Make sure you schedule time for it."}` : `"${matched[0].title}" is already marked as ${matched[0].status}. Well done!`}`;
+        } else {
+          script = `${firstName}, I didn't find a specific match for that, but let me give you a quick situational overview: you have ${pendingTasks} pending tasks and ${completedList.length} completed. ${overdueList.length > 0 ? `There are ${overdueList.length} overdue items that need immediate attention.` : `Your timeline is clean with no overdue tasks.`} ${coaching} Is there anything specific I can help you with? Ask me about overdue tasks, high priority items, your progress, or just say "give me advice" and I'll guide you!`;
+        }
+        whatsapp = `🔍 *TASK ASSIST SEARCH*\n\n👤 *Operator*: ${userName}\n🎯 *Query*: "${query}"\n📊 *Pending*: ${pendingTasks} | *Done*: ${completedList.length}`;
       }
 
-      console.log("[Vocal Assist] Offline voice response generated successfully.");
       setVoiceScript(script);
       setWhatsappBriefing(whatsapp);
-      
-      // Speak the text
       speakText(script);
+
     } catch (err: any) {
-      console.error("[Vocal Assist] Local offline voice generation failed:", err);
-      const fallbackScript = `Hello ${userName}! Currently, we have ${pendingTasks} pending tasks to finish. Let's make today absolutely amazing!`;
-      setVoiceScript(fallbackScript);
-      setWhatsappBriefing(`📋 *TASK ASSIST BRIEF*\n\n👤 *Operator*: ${userName}\n📝 *Pending*: ${pendingTasks} tasks`);
-      speakText(fallbackScript);
+      console.error("[Vocal Assist] Error:", err);
+      const fallback = `Hey ${userName}! I'm your personal task guide. You have ${pendingTasks} pending tasks right now. Remember — progress over perfection. Let's make today count!`;
+      setVoiceScript(fallback);
+      speakText(fallback);
     } finally {
       setIsGenerating(false);
     }
@@ -395,6 +419,36 @@ export default function OverviewPanel({
   useEffect(() => {
     fetchAIRecommendations();
   }, [tasks.length]); // Refresh tips when task count changes
+
+  // ── AUTO-GREETING on Dashboard Open ──────────────────────────────────────────
+  // Fires once when the Overview panel mounts. Waits for browser voices to load,
+  // then automatically speaks the personalized time-aware greeting.
+  useEffect(() => {
+    // Only trigger once per session so it doesn't repeat on re-renders
+    const alreadyGreeted = sessionStorage.getItem("taskassist_greeted");
+    if (alreadyGreeted) return;
+
+    const fireGreeting = () => {
+      sessionStorage.setItem("taskassist_greeted", "true");
+      generateVoiceBrief(); // calls the full status briefing
+    };
+
+    // Browsers load voices async — wait up to 2s for them, then fire
+    if (window.speechSynthesis) {
+      const voices = window.speechSynthesis.getVoices();
+      if (voices.length > 0) {
+        // Voices already available — small UX delay so dashboard has time to render
+        setTimeout(fireGreeting, 1200);
+      } else {
+        // Wait for voices to load
+        window.speechSynthesis.addEventListener("voiceschanged", () => {
+          setTimeout(fireGreeting, 800);
+        }, { once: true });
+        // Absolute fallback if voiceschanged never fires
+        setTimeout(fireGreeting, 2500);
+      }
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="space-y-6 font-sans text-zinc-850" id="overview_panel">
