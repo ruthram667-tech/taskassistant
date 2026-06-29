@@ -90,69 +90,111 @@ export default function OverviewPanel({
     }
   };
 
-  // Synthesize and speak text using browser speech engine
+  // ── EMOTIONAL TTS ENGINE ──────────────────────────────────────────────────
+  // Reads the script chunk-by-chunk and applies dynamic pitch/rate inflections
+  // based on punctuation and sentiment to sound dramatically more human.
   const speakText = (text: string) => {
-    setSpeechError("");
     if ("speechSynthesis" in window) {
+      window.speechSynthesis.cancel(); // Clear any ongoing speech
+      setSpeechError(null);
+      setIsSpeaking(true);
+
       try {
-        window.speechSynthesis.cancel();
-        
-        const utterance = new SpeechSynthesisUtterance(text);
-
-        // ── Friendly Voice Settings ─────────────────────────────────────
-        utterance.pitch = 1.15;   // Slightly higher = warmer, more upbeat
-        utterance.rate  = 0.92;   // Slightly slower = relaxed and conversational
-        utterance.volume = 1.0;
-
-        utterance.onstart = () => { setIsSpeaking(true); setSpeechError(""); };
-        utterance.onend   = () => { setIsSpeaking(false); };
-        utterance.onerror = (e) => {
-          setIsSpeaking(false);
-          if (e.error === "not-allowed") {
-            setSpeechError("Microphone blocked. Open the app in a new tab to hear the voice!");
-          } else if (e.error && e.error !== "interrupted") {
-            setSpeechError(`Speech issue: ${e.error}. You can still read the script below.`);
-          }
-        };
-
-        // ── Voice Priority: warm, natural, female-preferred ─────────────
         const voices = window.speechSynthesis.getVoices();
-
-        // Priority 1: Google Natural/UK Female (very warm on Chrome)
+        
+        // Priority: Natural, warm, expressive voices (especially Microsoft Aria Online, Google US/UK)
         const friendly = voices.find(v =>
           v.lang.startsWith("en") && (
+            v.name.includes("Microsoft Aria Online") ||
             v.name.includes("Google UK English Female") ||
-            v.name.includes("Samantha") ||       // macOS / iOS warm voice
-            v.name.includes("Karen") ||           // Australian female
-            v.name.includes("Moira") ||           // Irish female
-            v.name.includes("Tessa") ||           // South African
+            v.name.includes("Samantha") ||
+            v.name.includes("Microsoft Zira") ||
             v.name.includes("Google US English") ||
-            v.name.includes("Microsoft Zira") ||  // Windows warm female
-            v.name.includes("Microsoft Aria") ||  // Windows natural
             v.name.includes("Natural") ||
             v.name.includes("Premium")
           )
-        );
+        ) || voices.find(v => v.lang.startsWith("en") && v.name.toLowerCase().includes("female"));
 
-        // Priority 2: Any English female voice
-        const anyFemale = !friendly && voices.find(v =>
-          v.lang.startsWith("en") && (
-            v.name.toLowerCase().includes("female") ||
-            v.name.includes("Google") ||
-            v.name.includes("Microsoft")
-          )
-        );
+        // Split text into meaningful conversational chunks (sentences or clauses)
+        // Keeps the punctuation attached to the chunk.
+        const chunks = text.match(/[^.!?—]+[.!?—]+/g) || [text];
+        
+        let chunkIndex = 0;
 
-        if (friendly) {
-          utterance.voice = friendly;
-        } else if (anyFemale) {
-          utterance.voice = anyFemale;
-        }
-        // else browser default — still benefits from pitch/rate settings
+        const speakNextChunk = () => {
+          if (chunkIndex >= chunks.length) {
+            setIsSpeaking(false);
+            return;
+          }
 
-        window.speechSynthesis.speak(utterance);
+          const chunkText = chunks[chunkIndex].trim();
+          if (!chunkText) {
+            chunkIndex++;
+            return speakNextChunk();
+          }
+
+          const utterance = new SpeechSynthesisUtterance(chunkText);
+          if (friendly) utterance.voice = friendly;
+
+          // Base settings (friendly, warm)
+          let pitch = 1.15;
+          let rate = 0.92;
+
+          const lowerChunk = chunkText.toLowerCase();
+
+          // Apply dynamic emotional inflection based on content
+          if (chunkText.includes("!") || lowerChunk.includes("great") || lowerChunk.includes("crushing") || lowerChunk.includes("good")) {
+            // Enthusiastic / Motivational (higher energy, slightly faster)
+            pitch = 1.25;
+            rate = 0.98;
+          } else if (chunkText.includes("?") || lowerChunk.includes("what") || lowerChunk.includes("how")) {
+            // Inquisitive (raises pitch at the end naturally, we set baseline slightly higher)
+            pitch = 1.22;
+            rate = 0.94;
+          } else if (lowerChunk.includes("overdue") || lowerChunk.includes("critical") || lowerChunk.includes("important") || lowerChunk.includes("flag") || lowerChunk.includes("debt")) {
+            // Serious / Emphasized Guidance (slower, deeper, more serious tone)
+            pitch = 0.90;
+            rate = 0.85;
+          } else if (chunkText.includes("—") || chunkText.includes("...")) {
+            // Thoughtful pause / reflecting
+            pitch = 1.05;
+            rate = 0.88;
+          } else {
+            // Conversational baseline — randomize pitch very slightly for natural human-like cadence irregularity
+            pitch = 1.1 + (Math.random() * 0.1); 
+            rate = 0.92;
+          }
+
+          utterance.pitch = pitch;
+          utterance.rate = rate;
+          utterance.volume = 1;
+
+          utterance.onend = () => {
+            // Small conversational pause between sentences
+            setTimeout(() => {
+              chunkIndex++;
+              speakNextChunk();
+            }, 100); 
+          };
+
+          utterance.onerror = (e) => {
+            if (e.error === "not-allowed") {
+              setSpeechError("Microphone/Speaker blocked. Try clicking a button first!");
+            } else if (e.error !== "interrupted") {
+              setSpeechError(`Speech issue: ${e.error}.`);
+            }
+            setIsSpeaking(false);
+          };
+
+          window.speechSynthesis.speak(utterance);
+        };
+
+        // Kick off the emotional speech pipeline
+        speakNextChunk();
+
       } catch (err: any) {
-        setSpeechError("Speech synthesis is not permitted in this environment. Open in a new tab!");
+        setSpeechError("Speech synthesis is not permitted in this environment.");
+        setIsSpeaking(false);
       }
     } else {
       setSpeechError("Speech synthesis is not supported by your browser.");

@@ -167,12 +167,12 @@ export default function Login({ onAuthSuccess }: LoginProps) {
 
   return (
     <div 
-      className="min-h-screen bg-[#06080c] text-white flex flex-col justify-between p-4 sm:p-6 font-sans antialiased selection:bg-emerald-500 selection:text-zinc-950 relative overflow-hidden" 
+      className="min-h-screen bg-[#F3F7F5] text-zinc-850 flex flex-col justify-between p-4 sm:p-6 font-sans antialiased selection:bg-emerald-500 selection:text-white relative overflow-hidden" 
       id="login_screen_root"
     >
-      {/* Visual Style: Rich ambient background with floating animated blur blobs */}
+      {/* Visual Style: Soft ambient background with floating animated blur blobs for Light Mode */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
-        {/* Neon Purple/Indigo Orb */}
+        {/* Soft Teal Blob */}
         <motion.div 
           animate={{
             x: [0, 40, -20, 0],
@@ -184,10 +184,10 @@ export default function Login({ onAuthSuccess }: LoginProps) {
             repeat: Infinity,
             ease: "easeInOut"
           }}
-          className="absolute -top-40 -left-40 w-[600px] h-[600px] bg-indigo-600/15 rounded-full blur-[140px]"
+          className="absolute -top-40 -left-40 w-[600px] h-[600px] bg-emerald-100/40 rounded-full blur-[140px]"
         />
         
-        {/* Neon Emerald/Cyan Orb */}
+        {/* Soft Mint/Cyan Blob */}
         <motion.div 
           animate={{
             x: [0, -60, 40, 0],
@@ -199,56 +199,40 @@ export default function Login({ onAuthSuccess }: LoginProps) {
             repeat: Infinity,
             ease: "easeInOut"
           }}
-          className="absolute -bottom-40 -right-40 w-[650px] h-[650px] bg-emerald-500/10 rounded-full blur-[150px]"
-        />
-
-        {/* Coral/Amber Soft Ambient Light */}
-        <motion.div 
-          animate={{
-            x: [0, 30, -30, 0],
-            y: [0, 30, 20, 0],
-            scale: [1, 1.05, 0.95, 1]
-          }}
-          transition={{
-            duration: 15,
-            repeat: Infinity,
-            ease: "easeInOut",
-            delay: 3
-          }}
-          className="absolute top-[30%] left-[25%] w-[400px] h-[400px] bg-violet-600/10 rounded-full blur-[120px]"
+          className="absolute -bottom-40 -right-40 w-[650px] h-[650px] bg-teal-100/40 rounded-full blur-[150px]"
         />
       </div>
 
-      {/* Top minimal header bar with glowing separator */}
+      {/* Top minimal header bar */}
       <header className="w-full max-w-6xl mx-auto flex justify-between items-center py-4 px-4 bg-transparent relative z-10" id="login_top_header">
         <div className="flex items-center gap-3" id="header_logo_group">
-          <div className="h-8 w-8 bg-gradient-to-tr from-emerald-500 to-teal-400 text-zinc-950 rounded-xl flex items-center justify-center font-bold text-sm shadow-[0_0_20px_rgba(16,185,129,0.3)]">
-            T
+          <div className="h-8 w-8 bg-emerald-100 border border-emerald-500/20 text-emerald-600 rounded-xl flex items-center justify-center font-bold text-sm shadow-sm">
+            <Shield className="w-4 h-4" />
           </div>
           <div className="flex flex-col">
-            <span className="font-bold text-xs tracking-widest uppercase font-mono bg-gradient-to-r from-white via-zinc-200 to-zinc-400 bg-clip-text text-transparent">Task Assist</span>
-            <span className="text-[8px] font-mono uppercase text-emerald-400/80 tracking-widest -mt-0.5">Vocal Operations</span>
+            <span className="font-bold text-xs tracking-widest uppercase font-mono text-zinc-800">Task Assist</span>
+            <span className="text-[8px] font-mono uppercase text-emerald-600 tracking-widest -mt-0.5">Vocal Operations</span>
           </div>
         </div>
         <div className="flex items-center gap-4 text-[10px] font-mono uppercase tracking-wider" id="header_status">
-          <span className="flex items-center gap-1.5 bg-zinc-900/40 backdrop-blur-md border border-white/5 px-3 py-1 rounded-full text-zinc-300 shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]"></span>
+          <span className="flex items-center gap-1.5 bg-white border border-emerald-500/20 px-3 py-1 rounded-full text-zinc-600 shadow-sm">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]"></span>
             Cloud Sandbox v2.5
           </span>
         </div>
       </header>
 
-      {/* Main centered glassmorphic login section */}
+      {/* Main centered login section */}
       <main className="flex-grow flex items-center justify-center py-8 px-4 relative z-10">
         <div className="w-full max-w-md" id="login_card_wrapper">
           
           {/* Main Elevated Card with Layered Depth Effects */}
           <div 
-            className="bg-zinc-950/40 border border-white/10 backdrop-blur-xl rounded-[32px] shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5),_inset_0_1px_1px_rgba(255,255,255,0.05)] p-6 sm:p-8 flex flex-col relative overflow-hidden" 
+            className="bg-white border border-emerald-500/10 rounded-[32px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-6 sm:p-8 flex flex-col relative overflow-hidden" 
             id="auth_card_container"
           >
             {/* Fine border linear accent on top of card */}
-            <div className="absolute top-0 left-0 right-0 h-[1.5px] bg-gradient-to-r from-transparent via-emerald-500/50 to-transparent" />
+            <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-emerald-400 via-teal-400 to-emerald-400" />
 
             <AnimatePresence mode="wait">
               {loginProcessState !== "idle" ? (
@@ -265,25 +249,25 @@ export default function Login({ onAuthSuccess }: LoginProps) {
                   {/* Premium Rotating Loading Core */}
                   <div className="text-center space-y-3">
                     <div className="relative inline-flex items-center justify-center">
-                      {/* Decorative outer neon rings */}
-                      <div className="absolute inset-0 rounded-full border border-emerald-500/20 animate-ping opacity-30" />
-                      <div className="absolute -inset-1.5 rounded-2xl border border-teal-500/10 animate-spin [animation-duration:8s]" />
+                      {/* Decorative outer rings */}
+                      <div className="absolute inset-0 rounded-full border border-emerald-500/30 animate-ping opacity-50" />
+                      <div className="absolute -inset-1.5 rounded-2xl border border-teal-500/20 animate-spin [animation-duration:8s]" />
                       
-                      <div className="h-14 w-14 bg-zinc-900/60 border border-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center text-emerald-400 shadow-[0_0_30px_rgba(16,185,129,0.15)]">
+                      <div className="h-14 w-14 bg-emerald-50 border border-emerald-500/20 rounded-2xl flex items-center justify-center text-emerald-600 shadow-sm">
                         <Loader2 className="h-7 w-7 animate-spin" />
                       </div>
                     </div>
                     <div>
-                      <h3 className="text-sm font-bold uppercase tracking-wider text-white font-mono">Initializing Workspace</h3>
-                      <p className="text-[10px] font-mono text-zinc-400 mt-1">Booting secure offline client databases</p>
+                      <h3 className="text-sm font-bold uppercase tracking-wider text-zinc-800 font-mono">Initializing Workspace</h3>
+                      <p className="text-[10px] font-mono text-zinc-500 mt-1">Booting secure offline client databases</p>
                     </div>
                   </div>
 
                   {/* Interactive Status Timeline */}
-                  <div className="p-4 border border-white/5 rounded-2xl bg-zinc-950/60 shadow-[inset_0_2px_4px_rgba(0,0,0,0.4)] space-y-3">
-                    <div className="flex items-center gap-2 border-b border-white/5 pb-2 mb-1">
-                      <Terminal className="h-3 w-3 text-emerald-400" />
-                      <span className="font-mono text-[9px] font-bold text-zinc-400 uppercase tracking-wider">Calibration Output</span>
+                  <div className="p-4 border border-zinc-100 rounded-2xl bg-zinc-50 shadow-inner space-y-3">
+                    <div className="flex items-center gap-2 border-b border-zinc-200 pb-2 mb-1">
+                      <Terminal className="h-3 w-3 text-emerald-600" />
+                      <span className="font-mono text-[9px] font-bold text-zinc-500 uppercase tracking-wider">Calibration Output</span>
                     </div>
 
                     <div className="space-y-2.5">
@@ -297,19 +281,19 @@ export default function Login({ onAuthSuccess }: LoginProps) {
                             key={step.id} 
                             className={`flex items-center justify-between text-xs font-mono transition-all duration-300 ${
                               isCompleted 
-                                ? "text-emerald-400/90" 
+                                ? "text-emerald-600 font-medium" 
                                 : isActive 
-                                  ? "text-teal-300 font-bold drop-shadow-[0_0_8px_rgba(20,184,166,0.3)]" 
-                                  : "text-zinc-500"
+                                  ? "text-teal-600 font-bold" 
+                                  : "text-zinc-400"
                             }`}
                           >
                             <div className="flex items-center gap-3">
                               <div className={`h-6 w-6 rounded-lg flex items-center justify-center border transition-all duration-300 ${
                                 isCompleted 
-                                  ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400 shadow-[0_0_10px_rgba(16,185,129,0.1)]" 
+                                  ? "bg-emerald-50 border-emerald-500/30 text-emerald-600 shadow-sm" 
                                   : isActive 
-                                    ? "border-teal-400 text-teal-300 bg-teal-950/30 animate-pulse" 
-                                    : "border-white/5 bg-zinc-900/40 text-zinc-500"
+                                    ? "border-teal-500/40 text-teal-600 bg-teal-50 animate-pulse" 
+                                    : "border-zinc-200 bg-zinc-100 text-zinc-400"
                               }`}>
                                 {isCompleted ? (
                                   <Check className="h-3.5 w-3.5 stroke-[2.5]" />
@@ -355,15 +339,14 @@ export default function Login({ onAuthSuccess }: LoginProps) {
                   className="space-y-6"
                   key="initial_options_view"
                 >
-                  {/* Heading & Subheading */}
                   <div className="text-center space-y-1.5" id="auth_headline_group">
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/5 border border-emerald-500/10 text-emerald-400 text-[9px] font-mono uppercase tracking-widest font-semibold">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-500/20 text-emerald-700 text-[9px] font-mono uppercase tracking-widest font-bold">
                       <Shield className="h-3 w-3" /> Secure Gatekeeper
                     </span>
-                    <h2 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight leading-tight">
+                    <h2 className="text-xl sm:text-2xl font-extrabold text-zinc-800 tracking-tight leading-tight mt-2">
                       Access Task Assist
                     </h2>
-                    <p className="text-zinc-400 text-xs font-normal max-w-sm mx-auto leading-relaxed">
+                    <p className="text-zinc-500 text-xs font-normal max-w-sm mx-auto leading-relaxed">
                       Sync settings securely to IndexedDB and enable voice synthesis modules.
                     </p>
                   </div>
@@ -375,16 +358,16 @@ export default function Login({ onAuthSuccess }: LoginProps) {
                     exit={{ opacity: 0, x: 10 }}
                     transition={{ duration: 0.2 }}
                     onSubmit={handleCustomFormSubmit} 
-                    className="space-y-4"
+                    className="space-y-5 mt-2"
                     key="credentials_form_tab"
                   >
                     {/* Name Field */}
-                    <div className="space-y-1">
-                      <label htmlFor="name_input_field" className="block font-mono text-[9px] uppercase font-bold text-zinc-400 tracking-wider">
+                    <div className="space-y-1.5">
+                      <label htmlFor="name_input_field" className="block font-mono text-[9px] uppercase font-bold text-zinc-500 tracking-wider">
                         Full Name
                       </label>
                       <div className="relative">
-                        <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-500">
+                        <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-zinc-400">
                           <User className="h-4 w-4" />
                         </span>
                         <input
@@ -394,18 +377,18 @@ export default function Login({ onAuthSuccess }: LoginProps) {
                           placeholder="John Doe"
                           value={nameInput}
                           onChange={(e) => setNameInput(e.target.value)}
-                          className="w-full h-11 pl-9 pr-3 bg-white/5 border border-white/10 focus:border-emerald-500/40 text-white text-xs rounded-xl focus:outline-none focus:ring-1 focus:ring-emerald-500/30 transition-all shadow-[inset_0_2px_4px_rgba(0,0,0,0.2)] placeholder-zinc-500"
+                          className="w-full h-11 pl-10 pr-3 bg-zinc-50 border border-zinc-200 focus:border-emerald-500/50 text-zinc-800 text-xs rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all placeholder-zinc-400"
                         />
                       </div>
                     </div>
 
                     {/* Email Field */}
-                    <div className="space-y-1">
-                      <label htmlFor="email_input_field" className="block font-mono text-[9px] uppercase font-bold text-zinc-400 tracking-wider">
+                    <div className="space-y-1.5">
+                      <label htmlFor="email_input_field" className="block font-mono text-[9px] uppercase font-bold text-zinc-500 tracking-wider">
                         Email Address
                       </label>
                       <div className="relative">
-                        <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-500">
+                        <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-zinc-400">
                           <Mail className="h-4 w-4" />
                         </span>
                         <input
@@ -415,17 +398,17 @@ export default function Login({ onAuthSuccess }: LoginProps) {
                           placeholder="john@example.com"
                           value={emailInput}
                           onChange={(e) => setEmailInput(e.target.value)}
-                          className="w-full h-11 pl-9 pr-3 bg-white/5 border border-white/10 focus:border-emerald-500/40 text-white text-xs rounded-xl focus:outline-none focus:ring-1 focus:ring-emerald-500/30 transition-all shadow-[inset_0_2px_4px_rgba(0,0,0,0.2)] placeholder-zinc-500"
+                          className="w-full h-11 pl-10 pr-3 bg-zinc-50 border border-zinc-200 focus:border-emerald-500/50 text-zinc-800 text-xs rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all placeholder-zinc-400"
                         />
                       </div>
                     </div>
 
                     {/* Submit Button */}
                     <motion.button
-                      whileHover={{ scale: 1.02, y: -1 }}
+                      whileHover={{ scale: 1.01, y: -1 }}
                       whileTap={{ scale: 0.98 }}
                       type="submit"
-                      className="w-full h-11 bg-gradient-to-r from-emerald-500 to-teal-400 text-zinc-950 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-[0_4px_20px_rgba(16,185,129,0.25)] hover:shadow-[0_4px_25px_rgba(16,185,129,0.4)] mt-2"
+                      className="w-full h-11 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md mt-4"
                       id="custom_form_submit_btn"
                     >
                       Authenticate Operator <ArrowRight className="h-3.5 w-3.5" />
@@ -438,22 +421,22 @@ export default function Login({ onAuthSuccess }: LoginProps) {
           </div>
 
           {/* Secure compliance disclaimer below the card */}
-          <p className="text-[9px] text-zinc-500 font-mono text-center uppercase tracking-widest mt-6" id="compliance_stamp">
+          <p className="text-[9px] text-zinc-400 font-mono text-center uppercase tracking-widest mt-6" id="compliance_stamp">
             Secure Cryptography Handshake Enabled • IndexedDB Encrypted
           </p>
 
         </div>
       </main>
 
-      {/* Bottom minimalistic sleek footer with separation */}
-      <footer className="w-full max-w-6xl mx-auto py-4 border-t border-white/5 flex flex-col sm:flex-row justify-between items-center gap-2 relative z-10" id="login_screen_footer">
-        <span className="text-[9px] font-mono text-zinc-500 uppercase tracking-wider">
+      {/* Bottom minimalistic sleek footer */}
+      <footer className="w-full max-w-6xl mx-auto py-4 border-t border-zinc-200 flex flex-col sm:flex-row justify-between items-center gap-2 relative z-10" id="login_screen_footer">
+        <span className="text-[9px] font-mono text-zinc-400 uppercase tracking-wider">
           TASK ASSIST CONSOLE v2.5.0 • SECURED OPERATOR KERNEL
         </span>
-        <div className="flex gap-4 text-[9px] font-mono text-zinc-500 uppercase tracking-wider">
-          <span className="hover:text-white transition-colors cursor-pointer">Security Policy</span>
+        <div className="flex gap-4 text-[9px] font-mono text-zinc-400 uppercase tracking-wider">
+          <span className="hover:text-zinc-700 transition-colors cursor-pointer">Security Policy</span>
           <span>•</span>
-          <span className="hover:text-white transition-colors cursor-pointer">Local IndexedDB Mode</span>
+          <span className="hover:text-zinc-700 transition-colors cursor-pointer">Local IndexedDB Mode</span>
         </div>
       </footer>
     </div>
