@@ -5,8 +5,8 @@ networks:
   taskassistant_net:
     driver: bridge
   # External network for your reverse proxy (Nginx Proxy Manager, Traefik, etc.)
-  reverse_proxy_net:
-    external: true 
+  # reverse_proxy_net:
+  #   external: true 
 
 services:
   app:
@@ -20,7 +20,7 @@ services:
     restart: unless-stopped
     ports:
       # Exposes the port dynamically based on .env, defaults to 3000
-      - "${APP_PORT:-3000}:3000"
+      - "${APP_PORT:-10026}:3000"
     environment:
       - NODE_ENV=production
       - GEMINI_API_KEY=${GEMINI_API_KEY}
@@ -39,7 +39,8 @@ services:
       - /mnt/Hdd/Hari/Projects/voice_assist/data:/app/data
     networks:
       - taskassistant_net
-      - reverse_proxy_net
+      # Uncomment below if you connect this to Nginx Proxy Manager later
+      # - reverse_proxy_net
     healthcheck:
       # Pings an existing lightweight GET endpoint in your server.ts
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api/email/logs"]
