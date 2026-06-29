@@ -29,6 +29,7 @@ export default function Login({ onAuthSuccess }: LoginProps) {
   const [defaultNotificationTime, setDefaultNotificationTime] = useState("09:00");
   const [activeTab, setActiveTab] = useState<"credentials" | "sandbox">("credentials");
   const [selectedProfile, setSelectedProfile] = useState<{ email: string; name: string } | null>(null);
+  const [isReturningUser, setIsReturningUser] = useState(false);
 
   // Unified "System Dispatch Check" transition state
   const [loginProcessState, setLoginProcessState] = useState<"idle" | "building" | "success">("idle");
@@ -112,6 +113,7 @@ export default function Login({ onAuthSuccess }: LoginProps) {
 
       localStorage.setItem("taskassist_session_user", JSON.stringify(authenticatedUser));
       localStorage.setItem("taskassist_session_token", "unrestricted-google-oauth-token-999");
+      localStorage.setItem("taskassist_is_returning", isReturningUser ? "true" : "false");
 
       onAuthSuccess(authenticatedUser, "unrestricted-google-oauth-token-999");
     };
@@ -123,6 +125,19 @@ export default function Login({ onAuthSuccess }: LoginProps) {
   // Trigger login workflow
   const triggerLoginProcess = (profile: { email: string; name: string } | null) => {
     setSelectedProfile(profile);
+    // Check if this email has previously logged in
+    const existingSession = localStorage.getItem("taskassist_session_user");
+    if (existingSession) {
+      try {
+        const parsed = JSON.parse(existingSession);
+        const loginEmail = profile?.email || emailInput.trim();
+        setIsReturningUser(parsed.email === loginEmail);
+      } catch {
+        setIsReturningUser(false);
+      }
+    } else {
+      setIsReturningUser(false);
+    }
     setLoginProcessState("building");
   };
 

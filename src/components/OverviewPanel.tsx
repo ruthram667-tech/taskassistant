@@ -30,6 +30,7 @@ export default function OverviewPanel({
   onAddTask, 
   onNavigateToTab 
 }: OverviewPanelProps) {
+  const isReturningUser = localStorage.getItem("taskassist_is_returning") === "true";
   const [tips, setTips] = useState<{ tip: string; quote: string; scheduleSuggestion: string } | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -404,7 +405,7 @@ export default function OverviewPanel({
             Autonomous Operator Terminal
           </span>
           <h1 className="text-4xl font-serif text-[#163020] tracking-tight font-medium">
-            Welcome back, <span className="font-serif font-bold text-[#059669]">{userName || "John"}</span>
+            {isReturningUser ? "Welcome back, " : "Welcome to Task Assist, "}<span className="font-serif font-bold text-[#059669]">{userName || "John"}</span>
           </h1>
           <p className="text-zinc-500 mt-2 italic font-serif text-xs leading-relaxed max-w-2xl">
             {tips ? `"${tips.quote.split(" - ")[0]}"` : `"Concentrate all your thoughts upon the work of hand. The sun's rays do not burn until brought to a focus."`}
