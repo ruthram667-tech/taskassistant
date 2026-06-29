@@ -102,16 +102,14 @@ export default function OverviewPanel({
       try {
         const voices = window.speechSynthesis.getVoices();
         
-        // Priority: Natural, warm, expressive voices (especially Microsoft Aria Online, Google US/UK)
+        // Priority: Mature, clear, standard female voices (Highly legible, calm)
         const friendly = voices.find(v =>
           v.lang.startsWith("en") && (
-            v.name.includes("Microsoft Aria Online") ||
-            v.name.includes("Google UK English Female") ||
-            v.name.includes("Samantha") ||
-            v.name.includes("Microsoft Zira") ||
-            v.name.includes("Google US English") ||
-            v.name.includes("Natural") ||
-            v.name.includes("Premium")
+            v.name.includes("Microsoft Zira") ||           // Windows standard clear female
+            v.name.includes("Google UK English Female") || // Clear, mature British pronunciation
+            v.name.includes("Google US English") ||        // Standard, clean American pronunciation
+            v.name.includes("Samantha") ||                 // macOS mature standard female
+            v.name.includes("Microsoft Aria Online")       // Modern neural Windows voice
           )
         ) || voices.find(v => v.lang.startsWith("en") && v.name.toLowerCase().includes("female"));
 
@@ -136,33 +134,33 @@ export default function OverviewPanel({
           const utterance = new SpeechSynthesisUtterance(chunkText);
           if (friendly) utterance.voice = friendly;
 
-          // Base settings (friendly, warm)
-          let pitch = 1.15;
-          let rate = 0.92;
+          // Base settings (mature, calm, easily understood)
+          let pitch = 1.0;
+          let rate = 0.90;
 
           const lowerChunk = chunkText.toLowerCase();
 
-          // Apply dynamic emotional inflection based on content
+          // Apply dynamic emotional inflection (kept subtle to maintain mature tone)
           if (chunkText.includes("!") || lowerChunk.includes("great") || lowerChunk.includes("crushing") || lowerChunk.includes("good")) {
-            // Enthusiastic / Motivational (higher energy, slightly faster)
-            pitch = 1.25;
-            rate = 0.98;
+            // Encouraging (slightly warmer, slightly faster)
+            pitch = 1.05;
+            rate = 0.93;
           } else if (chunkText.includes("?") || lowerChunk.includes("what") || lowerChunk.includes("how")) {
-            // Inquisitive (raises pitch at the end naturally, we set baseline slightly higher)
-            pitch = 1.22;
-            rate = 0.94;
+            // Inquisitive 
+            pitch = 1.05;
+            rate = 0.90;
           } else if (lowerChunk.includes("overdue") || lowerChunk.includes("critical") || lowerChunk.includes("important") || lowerChunk.includes("flag") || lowerChunk.includes("debt")) {
-            // Serious / Emphasized Guidance (slower, deeper, more serious tone)
-            pitch = 0.90;
+            // Serious / Emphasized Guidance (calm, grounded, slower)
+            pitch = 0.88;
             rate = 0.85;
           } else if (chunkText.includes("—") || chunkText.includes("...")) {
-            // Thoughtful pause / reflecting
-            pitch = 1.05;
+            // Thoughtful pause
+            pitch = 0.95;
             rate = 0.88;
           } else {
             // Conversational baseline — randomize pitch very slightly for natural human-like cadence irregularity
-            pitch = 1.1 + (Math.random() * 0.1); 
-            rate = 0.92;
+            pitch = 0.98 + (Math.random() * 0.04); 
+            rate = 0.90;
           }
 
           utterance.pitch = pitch;
