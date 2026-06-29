@@ -59,7 +59,11 @@ export default function App() {
       const savedUser = localStorage.getItem("taskassist_session_user");
       const savedToken = localStorage.getItem("taskassist_session_token");
       if (savedUser) {
-        setUser(JSON.parse(savedUser));
+        const parsedUser = JSON.parse(savedUser);
+        setUser(parsedUser);
+        if (parsedUser.email.toLowerCase().trim() === ADMIN_EMAIL) {
+          setIsAdmin(true);
+        }
         if (savedToken) {
           setGoogleToken(savedToken);
         }
@@ -118,6 +122,7 @@ export default function App() {
     localStorage.removeItem("taskassist_session_token");
     localStorage.removeItem("taskassist_current_session_id");
     localStorage.removeItem("taskassist_session_start");
+    sessionStorage.removeItem("taskassist_greeted"); // Reset greeting so it plays on next login
     setUser(null);
     setGoogleToken(null);
     setIsAdmin(false);

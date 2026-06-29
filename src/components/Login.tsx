@@ -143,6 +143,19 @@ export default function Login({ onAuthSuccess }: LoginProps) {
 
   const handleCustomFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Unlock browser Speech Synthesis on this exact user gesture (button click)
+    // so the auto-greeting can play immediately on the next page
+    if ("speechSynthesis" in window) {
+      try {
+        const unlockUtterance = new SpeechSynthesisUtterance("");
+        unlockUtterance.volume = 0;
+        window.speechSynthesis.speak(unlockUtterance);
+      } catch (e) {
+        console.warn("Speech unlock failed:", e);
+      }
+    }
+
     const email = emailInput.trim() || "operator@taskassist.com";
     const name = nameInput.trim() || "Operator";
     triggerLoginProcess({ email, name });
